@@ -76,10 +76,11 @@ namespace Input {
 enum class Name {
     NONE = 0,
 
-    LEFT,
-    RIGHT,
     UP,
     DOWN,
+    SHOOT,
+    BOOST,
+
     QUIT,
 
     DEBUG_PERF,

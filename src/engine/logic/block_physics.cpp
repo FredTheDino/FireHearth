@@ -152,6 +152,9 @@ void integrate(Body *body, f32 delta) {
 	if (damping != 0.0f)
 		body->velocity = body->velocity * pow(damping, delta);
 #endif
+
+    body->acceleration = V2(0, 0);
+    body->force = V2(0, 0);
 }
 
 Overlap check_overlap(Body *body_a, Body *body_b) {

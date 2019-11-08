@@ -119,6 +119,14 @@ Vec2 normalize(Vec2 a) {
     return a / length(a);
 }
 
+Vec2 normalize_or_zero(Vec2 a) {
+    // This can be faster if the length is close to one.
+    f32 length_of_a = length(a);
+    if (length_of_a)
+        return a / length_of_a;
+    return a;
+}
+
 Vec2 hadamard(Vec2 a, Vec2 b) { return {a.x * b.x, a.y * b.y}; }
 
 Vec2 inverse(Vec2 a) { return {(real) 1.0 / a.x, (real) 1.0 / a.y}; }
