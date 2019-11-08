@@ -1,13 +1,33 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
+#define NO_ASSET 1024
 
 namespace Game {
 
 using namespace Input;
 Physics::ShapeID square;
 
+#include <vector>
+#include "entity.h"
+#include "enemy.h"
 #include "truck.h"
 Truck truck;
+
+std::vector<Enemy*> enemies;
+
+void draw_entity(Entity* entity) {
+    if (entity->image != NO_ASSET) {
+        Image* img = Asset::fetch_image(entity->image);
+        Renderer::push_sprite(entity->pos,
+                entity->dim,
+                entity->rotation,
+                entity->image,
+                V2(0,0),
+                V2(img->width, img->height));
+    } else {
+        Renderer::push_rectangle(entity->pos, entity->dim);
+    }
+}
 
 void setup() {
     add(K(w), Player::P1, Name::UP);
@@ -33,16 +53,27 @@ void setup() {
     truck = create_truck();
 
     Renderer::global_camera.zoom = 1.0 / 20.0;
+
+    Enemy* e = new Banana(V2(0, 0));
+    enemies.push_back(e);
+    e = new Banana(V2(5, 5));
+    enemies.push_back(e);
 }
 
 // Main logic
 void update(f32 delta) {
     truck.update(delta);
+    for (Enemy* enemy : enemies) {
+        enemy->update(delta);
+    }
 }
 
 // Main draw
 void draw() {
     truck.draw();
+    for (Enemy* enemy : enemies) {
+        draw_entity(enemy);
+    }
 }
 
 }  // namespace Game
