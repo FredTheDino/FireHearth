@@ -68,10 +68,6 @@ AudioID push_sound(SoundSource source) {
     if (audio_struct.num_free_sources) {
         u16 source_id =
             audio_struct.free_sources[--audio_struct.num_free_sources];
-        for (u32 i = 0; i < audio_struct.num_free_sources; i++) {
-            LOG("FREE: %d", audio_struct.free_sources[i]);
-        }
-        LOG("playing: %d", source_id);
         source.gen = audio_struct.sources[source_id].gen + 1;
         audio_struct.sources[source_id] = source;
         unlock_audio();
@@ -97,7 +93,6 @@ AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
 }
 
 void stop_sound(AudioID id) {
-    LOG("Called for audio: %d", id.slot);
     ASSERT(id.slot < NUM_SOURCES, "Invalid index in ID");
     lock_audio();
     SoundSource *source = audio_struct.sources + id.slot;
@@ -179,7 +174,6 @@ void audio_callback(void* userdata, u8* stream, int len) {
                     index = 0;
                     source->sample = 0;
                 } else {
-                    LOG("stopped: %d", source_id);
                     data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
                     continue;

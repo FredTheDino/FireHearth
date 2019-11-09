@@ -43,20 +43,6 @@ Vec2 get_truck_pos() {
     return truck.body.position;
 }
 
-void draw_entity(Entity* entity) {
-    if (entity->image != NO_ASSET) {
-        Image* img = Asset::fetch_image(entity->image);
-        Renderer::push_sprite(entity->pos,
-                -entity->dim,
-                entity->rotation,
-                entity->image,
-                V2(0,0),
-                V2(img->width, img->height));
-    } else {
-        Renderer::push_rectangle(entity->pos, entity->dim);
-    }
-}
-
 void setup() {
     add(K(w), Player::P1, Name::UP);
     add(K(d), Player::P1, Name::UP);
@@ -83,6 +69,7 @@ void setup() {
 
     truck = create_truck();
 
+    initalize_enemies();
 	createCloudSystems();
 
     Renderer::global_camera.zoom = 3.335 / 200.0;
@@ -121,6 +108,7 @@ void update(f32 delta) {
             if (check_overlap(&bullet.body, &enemy_body)) {
                 bullet.hit_enemy = true;
                 enemy->hp -= 1;
+                emit_hit_particles(bullet.body.position);
             }
         }
     }
@@ -164,11 +152,7 @@ void draw() {
     } else {
         truck.draw();
         draw_bullets();
-        for (Enemy* enemy : enemies) {
-            draw_entity(enemy);
-            Physics::Body body = enemy->get_body();
-            Physics::debug_draw_body(&body);
-        }
+        draw_enemies();
     }
 }
 
