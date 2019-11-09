@@ -3,36 +3,41 @@
 #include <vector>
 
 const u32 NO_ASSET = 1024;
-const f32 WORLD_LEFT_EDGE  = -20;
-const f32 WORLD_RIGHT_EDGE =  20;
+const f32 WORLD_LEFT_EDGE  = -50;
+const f32 WORLD_RIGHT_EDGE =  50;
+const f32 WORLD_TOP_EDGE = 50;
 const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
 
 namespace Game {
 
 using namespace Input;
 Physics::ShapeID square;
-
+bool game_over = false;
 Vec2 get_truck_pos();
 
+const float MAX_TRASH_LEVEL = -15;
+const float MIN_TRASH_LEVEL = -43;
+const float TRASH_VELOCITY = 0.01;
+    
+f32 currentTrashLevel = -50;
+f32 goalTrashLevel = MIN_TRASH_LEVEL;
+f32 groundLevel = currentTrashLevel + 20;
+    
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
 #include "truck.cpp"
 #include "clouds.h"
+#include "gameover.cpp"
 
 Truck truck;
 
-float MAX_TRASH_LEVEL = -15;
-float MIN_TRASH_LEVEL = -43;
 
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
 
 float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
-
-std::vector<Enemy*> enemies;
-Spawner spawner(&enemies);
 
 Vec2 get_truck_pos() {
     return truck.body.position;
@@ -60,6 +65,9 @@ void setup() {
     add(K(SPACE), Player::P1, Name::BOOST);
     add(K(m), Player::P1, Name::SHOOT);
 
+    Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
+		      ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
+
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
 
@@ -85,7 +93,7 @@ void setup() {
 void camera_follow(Vec2 target, f32 delta) {
     target.x = CLAMP(CAMERA_MIN, CAMERA_MAX, -target.x);
     Vec2 curr = Renderer::global_camera.position;
-    Renderer::global_camera.position.x = LERP(curr.x, 0.01, target.x);
+    Renderer::global_camera.position.x = LERP(curr.x, 0.05, target.x);
 }
 
 Vec2 paralax(Vec2 position, f32 distance) {
@@ -95,42 +103,73 @@ Vec2 paralax(Vec2 position, f32 distance) {
 // Main logic
 void update(f32 delta) {
 
+    if (game_over) {
+        // Do game over stuff
+        return;
+    }
+
     // Update game elements
     truck.update(delta);
     update_bullets(delta);
     spawner.update(delta);
-    for (Enemy* enemy : enemies) {
-        enemy->update(delta);
+    update_enemies(delta);
+
+    // Check for bullet collisions
+    for (Bullet& bullet : bullets) {
+        for (Enemy* enemy : enemies) {
+            Physics::Body enemy_body = enemy->get_body();
+            if (check_overlap(&bullet.body, &enemy_body)) {
+                bullet.hit_enemy = true;
+                enemy->hp -= 1;
+            }
+        }
+    }
+
+    if (down(Player::P1, Name::BOOST)) {
+        Renderer::global_camera.shake = random_unit_vec2() * 0.01;
+    } else {
+        Renderer::global_camera.shake = V2(0, 0);
     }
 
     camera_follow(truck.body.position, delta);
 
-	// spawnCloud();
 	updateClouds(delta);
+
+    if (currentTrashLevel >= MAX_TRASH_LEVEL) {
+        game_over = true;
+    } else if (currentTrashLevel < goalTrashLevel){
+        currentTrashLevel += TRASH_VELOCITY;
+    }
 }
 
 // Main draw
 void draw() {
     Renderer::push_sprite(paralax(V2(0, 0), 1.0), V2(120, -67), 0,
-            ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
-
+                          ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
 	drawClouds();
 
     Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
-            ASSET_CASTLE, V2(0, 0), V2(43, 66));
-
-    truck.draw();
-    draw_bullets();
-    for (Enemy* enemy : enemies) {
-        draw_entity(enemy);
-    }
+                          ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
     // Draw trash mountain.
-    Renderer::push_sprite(paralax(V2( 60, -43), TRASH_MOUNTAIN_DISTANCE),
-            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-    Renderer::push_sprite(paralax(V2(-60, -43), TRASH_MOUNTAIN_DISTANCE),
-            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+    Renderer::push_sprite(
+        paralax(V2(60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+        V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+    Renderer::push_sprite(
+        paralax(V2(-60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+        V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 
+    if (game_over) {
+        draw_game_over();
+    } else {
+        truck.draw();
+        draw_bullets();
+        for (Enemy* enemy : enemies) {
+            draw_entity(enemy);
+            Physics::Body body = enemy->get_body();
+            Physics::debug_draw_body(&body);
+        }
+    }
 }
 
 }  // namespace Game

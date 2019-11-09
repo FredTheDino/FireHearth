@@ -11,6 +11,10 @@ void Bullet::draw() {
     // Physics::debug_draw_body(&body);
 }
 
+bool Bullet::is_dead() const {
+    return hit_enemy || (Logic::now() - spawn_time) > BULLET_ALIVE_TIME;
+}
+
 void initalize_bullets() {
     bullets.reserve(128);
 }
@@ -33,10 +37,10 @@ void update_bullets(f32 delta) {
         bullet.update(delta);
     }
     auto is_dead = [](const Bullet &bullet) {
-        return (Logic::now() - bullet.spawn_time) > BULLET_ALIVE_TIME;
+        return bullet.is_dead();
     };
     bullets.erase(
-        std::remove_if(bullets.begin(), bullets.end(), is_dead),                
+        std::remove_if(bullets.begin(), bullets.end(), is_dead),
         bullets.end());
 }
 
@@ -70,6 +74,11 @@ void Truck::update(f32 delta) {
             velocity_angle + 1.0f};
     }
     smoke_particles.spawn();
+
+    if (pressed(Player::P1, Name::BOOST)) {
+        body.velocity += normalize(body.velocity) * TRUCK_BOOST_INITIAL;
+    }
+
     if (down(Player::P1, Name::BOOST))
         boost(delta);
 
@@ -87,8 +96,14 @@ void Truck::update(f32 delta) {
     if (length_squared(body.velocity) > TRUCK_MAX_SPEED)
         body.velocity *= pow(0.2, delta);
 
-    if (pressed(Player::P1, Name::SHOOT))
-        create_bullet(body.position + forward * dimension.x * 0.5, forward);
+    if (down(Player::P1, Name::SHOOT) &&
+        Logic::now() >= last_shot + TRUCK_SHOOT_DELAY) {
+            create_bullet(body.position + forward * dimension.x * 0.5, forward);
+            last_shot = Logic::now();
+	    
+	    Mixer::play_sound(ASSET_NOISE, 1.0, 1.0 , Mixer::AUDIO_DEFAULT_VARIANCE,
+			      Mixer::AUDIO_DEFAULT_VARIANCE, false);
+    }
 
     smoke_particles.update(delta);
     boost_particles.update(delta);
