@@ -81,7 +81,7 @@ void draw_text(const char *text, Vec2 position, f32 scale = 1.0, f32 wave = 0.0)
     char c;
     Vec2 pixel_offset = V2(1, -1) * PIXEL_TO_WORLD;
     int i = 0;
-    while (c = *(text++)) {
+    while ((c = *(text++))) {
         i++;
         Vec4 coords = BITMAP_FONT[char_to_index(c)];
         Vec2 dim = V2(coords.z, -coords.w) * PIXEL_TO_WORLD;
