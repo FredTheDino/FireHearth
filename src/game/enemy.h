@@ -103,6 +103,8 @@ struct TrashBag : public Enemy{
 	    LOG("%f", buryTime);
 	    if (time - buryTime >= 5){
 		currentTrashLevel++;
+		groundLevel++;
+		//kill enemies
 	    }
         }
 	pos += velocity * delta;
