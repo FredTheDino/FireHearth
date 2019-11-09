@@ -71,20 +71,17 @@ struct TrashBag : public Enemy{
 	    images.push_back(ASSET_TRASH_SLEEP);
 	}
 
-    const f32 SPEED = 1.5;
+    const f32 SPEED = 3;
+    f32 buryTime = 0;
     bool onGround = false;
 
     void update(f32 delta) {
     
 	time += delta;
-	f32 buryTime; 
 	animate(time);
-
-	LOG("%f",pos.y);
-        LOG("%f",groundLevel);
 	
 	if(pos.y <= groundLevel){
-	    buryTime = (!onGround) ? time : buryTime;
+            buryTime += delta ;
 	    onGround = true;
 	}
 	
@@ -98,15 +95,16 @@ struct TrashBag : public Enemy{
 	    images.pop_back();
 	    images.push_back(ASSET_TRASH);
             images.push_back(ASSET_TRASH_WALK);
-	    rotation = sin(time*2) /5;
+	    rotation = sin(time*10) /5;
 		
 	    //animate this.
-	    LOG("%f", time);
-	    LOG("%f", buryTime);
-	    if (time - buryTime >= 5){
+	    //LOG("%f", time);
+	    //LOG("%f", buryTime);
+	    LOG("%f", (buryTime));
+	    if (buryTime >= 3){
 		currentTrashLevel++;
 		groundLevel++;
-		//kill enemies
+		hp = 0;
 	    }
         }
 	pos += velocity * delta;

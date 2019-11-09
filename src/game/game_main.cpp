@@ -35,9 +35,6 @@ float TRASH_MOUNTAIN_DISTANCE = 0.5;
 float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
 
-std::vector<Enemy*> enemies;
-Spawner spawner(&enemies);
-
 Vec2 get_truck_pos() {
     return truck.body.position;
 }
@@ -111,7 +108,7 @@ void update(f32 delta) {
         Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
     }
 
-    if(currentTrashLevel > MAX_TRASH_LEVEL){
+    if(currentTrashLevel >= MAX_TRASH_LEVEL){
 	//Game_Over
     }
 
@@ -125,13 +122,6 @@ void draw() {
                              CASTLE_DISTANCE, -0.5), V2(43, -66), 0,
             ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
-    truck.draw();
-    draw_bullets();
-    for (Enemy* enemy : enemies) {
-        draw_entity(enemy);
-        Physics::Body body = enemy->get_body();
-        Physics::debug_draw_body(&body);
-    }
 
     // Draw trash mountain.
     Renderer::push_sprite(V2((Renderer::global_camera.position.x /
@@ -140,6 +130,16 @@ void draw() {
     Renderer::push_sprite(V2((Renderer::global_camera.position.x /
                               TRASH_MOUNTAIN_DISTANCE) - 60, currentTrashLevel),
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-}
+
+
+    truck.draw();
+    draw_bullets();
+    for (Enemy* enemy : enemies) {
+        draw_entity(enemy);
+        Physics::Body body = enemy->get_body();
+        Physics::debug_draw_body(&body);
+    }
+
+    }
 
 }  // namespace Game
