@@ -102,7 +102,7 @@ Vec2 paralax(Vec2 position, f32 distance) {
 void update(f32 delta) {
 
     if (game_over) {
-        if (down(Player::P1, Name::RESTART)) {
+        if (pressed(Player::P1, Name::RESTART)) {
             game_over = false;
             initalize_enemies();
             truck = create_truck();

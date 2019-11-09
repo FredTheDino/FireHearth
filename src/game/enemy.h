@@ -47,32 +47,32 @@ struct TrashBag : public Enemy{
 
     void update(f32 delta) {
 
-	time += delta;
-	animate(time);
+    time += delta;
+    animate(time);
 
-	if (pos.y <= groundLevel){
+    if (pos.y <= groundLevel){
             buryTime += delta ;
-	    onGround = true;
-	}
+        onGround = true;
+    }
 
-	if (!onGround){
-	    velocity.y = -SPEED;
-	    rotation = sin(time) / 3;
-	}else{
-	    velocity.y =0;
-	    animation_delay = 0.1;
-	    images.pop_back();
-	    images.push_back(ASSET_TRASH);
-	    images.push_back(ASSET_TRASH_WALK);
-	    rotation = sin(time*10) /5;
+    if (!onGround){
+        velocity.y = -SPEED;
+        rotation = sin(time) / 3;
+    }else{
+        velocity.y =0;
+        animation_delay = 0.1;
+        images.pop_back();
+        images.push_back(ASSET_TRASH);
+        images.push_back(ASSET_TRASH_WALK);
+        rotation = sin(time*10) /5;
 
-	    if (buryTime >= 3){
-		goalTrashLevel++;
-		groundLevel++;
-		hp = 0;
-	    }
-	}
-	pos += velocity * delta;
+        if (buryTime >= 3){
+        goalTrashLevel++;
+        groundLevel++;
+        hp = 0;
+        }
+    }
+    pos += velocity * delta;
     }
 
     Vec2 velocity;
@@ -132,24 +132,24 @@ struct BigBoi : public Enemy {
         velocity(V2(0, 0)),
         orig_pos(pos) {
             images.push_back(ASSET_TEST);
-	}
+    }
 
     void update(f32 delta) override {
         time += delta;
         animate(time);
 
-	Vec2 to_player = get_truck_pos() - pos;
-	to_player.y = 0;
+    Vec2 to_player = get_truck_pos() - pos;
+    to_player.y = 0;
 
         Vec2 goal = normalize(to_player) * SPEED_CHASING;
         velocity = LERP(velocity, 0.2, goal);
         animation_delay = 0.25;
 
-	pos += velocity * delta;
+    pos += velocity * delta;
         
-	if (pos.y < groundLevel){
-	    pos.y += 0.02;
-	}
+    if (pos.y < groundLevel){
+        pos.y += 0.02;
+    }
         
     }
 
@@ -182,10 +182,10 @@ struct Spawner {
                     spawn_trashbag();
                     last_spawn[TRASHBAG_INDEX] = time;
                 }
-		if (time - last_spawn[BIGBOI_INDEX] > 10) {
-		    spawn_bigboi();
-		    last_spawn[BIGBOI_INDEX] = 10;
-		}
+        if (time - last_spawn[BIGBOI_INDEX] > 10) {
+            spawn_bigboi();
+            last_spawn[BIGBOI_INDEX] = 10;
+        }
                 break;
             case 1:
                 if (time - last_spawn[TRASHBAG_INDEX] > 3) {
@@ -225,15 +225,22 @@ struct Spawner {
     }
 
     void spawn_bigboi() {
-	f32 x = random_real(WORLD_LEFT_EDGE * 0.9, WORLD_RIGHT_EDGE * 0.9);
-	f32 y = groundLevel;
-	enemies->push_back(new BigBoi(V2(x,y))); 
+        f32 x = random_real(WORLD_LEFT_EDGE * 0.9, WORLD_RIGHT_EDGE * 0.9);
+        f32 y = groundLevel;
+        enemies->push_back(new BigBoi(V2(x,y))); 
+    }
+
+    void reset() {
+        time = 0;
+        last_spawn[0] = -1;
+        last_spawn[1] = -1;
+        last_spawn[2] = -1;
     }
     
     std::vector<Enemy*>* enemies;
     f32 time;
     u32 threat;
-    f32 last_spawn[3] = {-1, -1,-1};
+    f32 last_spawn[3] = { -1, -1, -1 };
 };
 
 Renderer::ParticleSystem hit_particles;
@@ -241,7 +248,7 @@ std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
 
 void initalize_enemies() {
-    spawner.time = 0;
+    spawner.reset();
     for (Enemy* enemy : enemies) { 
         delete enemy;
     }
