@@ -1,6 +1,8 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 #include <vector>
+#include <string>
+#include <fstream>
 
 const u32 NO_ASSET = 1024;
 const f32 WORLD_LEFT_EDGE  = -80;
@@ -24,6 +26,7 @@ f32 currentTrashLevel = -50;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + 20;
 
+#include "highscore.h"
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
