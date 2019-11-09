@@ -48,6 +48,8 @@ int space = 0;
 std::string name = "AAA";
 int score = 0;
 
+bool title_screen = true;
+
 Vec2 get_truck_pos() {
     return truck.body.position;
 }
@@ -113,6 +115,12 @@ Vec2 paralax(Vec2 position, f32 distance) {
 // Main logic
 void update(f32 delta) {
 
+	if (title_screen) {
+		if (pressed(Player::P1, Name::CONFIRM)) {
+			title_screen = false;
+		}
+	}
+
     if (game_over) {
 		if (pressed(Player::P1, Name::BOOST)) {
 			index += 1;
@@ -131,10 +139,10 @@ void update(f32 delta) {
 			else {
 				name[space] = bitmapFontGuide[index];
 				// write_highscore(read_highscores(), name, score);
-				//back to title screen
+				title_screen = true;
 			}
 		}
-        if (down(Player::P1, Name::RESTART)) {
+        if (pressed(Player::P1, Name::RESTART)) {
             game_over = false;
             initalize_enemies();
             truck = create_truck();
@@ -204,10 +212,10 @@ void draw() {
 
     // Draw trash mountain.
     Renderer::push_sprite(
-        paralax(V2(60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+        V2(60, currentTrashLevel),
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
     Renderer::push_sprite(
-        paralax(V2(-60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+        V2(-60, currentTrashLevel),
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 
 
