@@ -83,7 +83,7 @@ void setup() {
 void camera_follow(Vec2 target, f32 delta) {
     target.x = CLAMP(CAMERA_MIN, CAMERA_MAX, -target.x);
     Vec2 curr = Renderer::global_camera.position;
-    Renderer::global_camera.position.x = LERP(curr.x, 0.01, target.x);
+    Renderer::global_camera.position.x = LERP(curr.x, 0.05, target.x);
 }
 
 Vec2 paralax(Vec2 position, f32 distance) {
@@ -115,15 +115,7 @@ void update(f32 delta) {
         }
     }
 
-    if (-truck.body.position.x > CAMERA_MAX) {
-        Renderer::global_camera.position.x = CAMERA_MAX;
-    }
-    else if (-truck.body.position.x < CAMERA_MIN) {
-        Renderer::global_camera.position.x = CAMERA_MIN;
-    } else {
-        Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
-    }
-
+    camera_follow(truck.body.position, delta);
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
         game_over = true;
     }
