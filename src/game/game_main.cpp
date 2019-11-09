@@ -33,7 +33,6 @@ f32 groundLevel = currentTrashLevel + 20;
 
 Truck truck;
 
-
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
 
@@ -45,15 +44,26 @@ Vec2 get_truck_pos() {
 }
 
 void setup() {
-    add(K(w), Player::P1, Name::UP);
+    // Bind wasd
+    add(K(w), Player::P1, Name::BOOST);
     add(K(d), Player::P1, Name::UP);
-    add(K(s), Player::P1, Name::DOWN);
+    //add(K(s), Player::P1, Name::DOWN); Add brake?
     add(K(a), Player::P1, Name::DOWN);
-    add(K(SPACE), Player::P1, Name::BOOST);
-    add(K(m), Player::P1, Name::SHOOT);
+
+    // Bind arrow keys
+    add(K(UP), Player::P1, Name::BOOST);
+    add(K(RIGHT), Player::P1, Name::UP);
+    //add(K(DOWN), Player::P1, Name::DOWN); Add brake?
+    add(K(LEFT), Player::P1, Name::DOWN);
+
+    // Shoot!
+    add(K(SPACE), Player::P1, Name::SHOOT);
+
+    // Restart
+    add(K(r), Player::P1, Name::RESTART);
 
     Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
-		      ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
+              ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
@@ -71,11 +81,11 @@ void setup() {
     truck = create_truck();
 
     initalize_enemies();
-	createCloudSystems();
+    createCloudSystems();
 
     Renderer::global_camera.zoom = 3.335 / 200.0;
 
-	Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
+    Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
 }
 
 void camera_follow(Vec2 target, f32 delta) {
@@ -90,9 +100,16 @@ Vec2 paralax(Vec2 position, f32 distance) {
 
 // Main logic
 void update(f32 delta) {
-    
+
     if (game_over) {
-        // Do game over stuff
+        if (down(Player::P1, Name::RESTART)) {
+            game_over = false;
+            initalize_enemies();
+            truck = create_truck();
+            currentTrashLevel = -50;
+            goalTrashLevel = MIN_TRASH_LEVEL;
+            groundLevel = currentTrashLevel + 20;
+        }
         return;
     }
 
@@ -102,14 +119,14 @@ void update(f32 delta) {
     spawner.update(delta);
     update_enemies(delta);
 
-    
+
     for (Enemy* enemy : enemies) {
         Physics::Body enemy_body = enemy->get_body();
         if (Physics::check_overlap(&enemy_body, &truck.body)){
             game_over = true;
         }
     }
-    
+
     // Check for bullet collisions
     for (Bullet& bullet : bullets) {
         for (Enemy* enemy : enemies) {
@@ -119,12 +136,12 @@ void update(f32 delta) {
                 enemy->hp -= 1;
                 emit_hit_particles(bullet.body.position);
             }
-	    
-	    if (Physics::check_overlap(&enemy_body, &truck.body)){
-		game_over = true;
-	    }
+
+            if (Physics::check_overlap(&enemy_body, &truck.body)){
+                game_over = true;
+            }
         }
-	
+
     }
 
     if (down(Player::P1, Name::BOOST)) {
@@ -135,7 +152,7 @@ void update(f32 delta) {
 
     camera_follow(truck.body.position, delta);
 
-	updateClouds(delta);
+    updateClouds(delta);
 
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
         game_over = true;
@@ -148,7 +165,7 @@ void update(f32 delta) {
 void draw() {
     Renderer::push_sprite(paralax(V2(0, 0), 1.0), V2(120, -67), 0,
                           ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
-	drawClouds();
+    drawClouds();
 
     Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
                           ASSET_CASTLE, V2(0, 0), V2(43, 66));
