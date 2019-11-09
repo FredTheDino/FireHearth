@@ -55,7 +55,6 @@ void update_bullets(f32 delta) {
 }
 
 void draw_bullets() {
-    LOG("NUM BULLETS: %d", bullets.size());
     for (Bullet &bullet : bullets)
         bullet.draw();
 }
