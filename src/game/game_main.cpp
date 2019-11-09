@@ -75,54 +75,46 @@ void setup() {
 
 // Main logic
 void update(f32 delta) {
+
+    // Update game elements
     truck.update(delta);
-
-    for (Enemy* enemy : enemies) {
-        enemy->update(delta);
-    }
-
     update_bullets(delta);
-
     spawner.update(delta);
     for (Enemy* enemy : enemies) {
         enemy->update(delta);
     }
-	if (-truck.body.position.x > CAMERA_MAX) {
-		Renderer::global_camera.position.x = CAMERA_MAX;
-	}
-	else if (-truck.body.position.x < CAMERA_MIN) {
-		Renderer::global_camera.position.x = CAMERA_MIN;
-	} else {
-		Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
-	}
+
+    if (-truck.body.position.x > CAMERA_MAX) {
+        Renderer::global_camera.position.x = CAMERA_MAX;
+    }
+    else if (-truck.body.position.x < CAMERA_MIN) {
+        Renderer::global_camera.position.x = CAMERA_MIN;
+    } else {
+        Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
+    }
 }
 
 // Main draw
 void draw() {
-	Renderer::push_sprite(-Renderer::global_camera.position, V2(120, -67), 0, 
-			ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
-	Renderer::push_sprite(V2(-Renderer::global_camera.position.x / 
-				             CASTLE_DISTANCE, -0.5), V2(43, -66), 0, 
-			ASSET_CASTLE, V2(0, 0), V2(43, 66));
+    Renderer::push_sprite(-Renderer::global_camera.position, V2(120, -67), 0,
+            ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
+    Renderer::push_sprite(V2(-Renderer::global_camera.position.x /
+                             CASTLE_DISTANCE, -0.5), V2(43, -66), 0,
+            ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
     truck.draw();
-    //
-    // for (Enemy* enemy : enemies) {
-    //     draw_entity(enemy);
-    // }
-
     draw_bullets();
     for (Enemy* enemy : enemies) {
         draw_entity(enemy);
     }
 
-	// Draw trash mountain.
-	Renderer::push_sprite(V2((Renderer::global_camera.position.x / 
-					          TRASH_MOUNTAIN_DISTANCE) + 60, -43), 
-			V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-	Renderer::push_sprite(V2((Renderer::global_camera.position.x / 
-					          TRASH_MOUNTAIN_DISTANCE) - 60, -43), 
-			V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+    // Draw trash mountain.
+    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
+                              TRASH_MOUNTAIN_DISTANCE) + 60, -43),
+            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
+                              TRASH_MOUNTAIN_DISTANCE) - 60, -43),
+            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 }
 
 }  // namespace Game
