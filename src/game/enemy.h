@@ -7,6 +7,9 @@ const u32 BANANA_HP = 5;
 const u32 BIGBOI_INDEX = 2;
 const f32 BIGBOI_SIZE = 10;
 const u32 BIGBOI_HP = 5; 
+const f32 BIGBOI_BULLET_SIZE = 5;
+const f32 BIGBOI_BULLET_SPEED = 10;
+const f32 BIGBOI_BULLET_ACCELERATION = -0.5;
 
 struct Enemy : public Entity {
     Enemy(Vec2 pos, Vec2 dim, f32 rotation, u32 hp) :
@@ -138,25 +141,43 @@ struct BigBoi : public Enemy {
         time += delta;
         animate(time);
 
-    Vec2 to_player = get_truck_pos() - pos;
-    to_player.y = 0;
+        Vec2 to_player = get_truck_pos() - pos;
+        to_player.y = 0;
 
         Vec2 goal = normalize(to_player) * SPEED_CHASING;
         velocity = LERP(velocity, 0.2, goal);
         animation_delay = 0.25;
 
-    pos += velocity * delta;
-        
-    if (pos.y < groundLevel){
-        pos.y += 0.02;
-    }
-        
+        pos += velocity * delta;
+
+        if (pos.y < groundLevel){
+            pos.y += 0.02;
+        }
+
     }
 
     Vec2 velocity;
     Vec2 orig_pos;
 };
 
+struct BigBoiBullet : public Enemy {
+    BigBoiBullet(Vec2 pos) :
+        Enemy(pos, V2(BIGBOI_BULLET_SIZE, BIGBOI_BULLET_SIZE), 0, 1),
+        velocity(V2(0, BIGBOI_BULLET_SPEED)),
+        acceleration(V2(0, -0.5)),
+        orig_y(pos.y) {
+            images.push_back(ASSET_TEST);
+    }
+
+    void update(f32 delta) override {
+        velocity += acceleration * delta;
+        pos += velocity * delta;
+    }
+
+    Vec2 velocity;
+    Vec2 acceleration;
+    f32 orig_y;
+};
 
 struct Spawner {
     Spawner(std::vector<Enemy*>* enemies) :
