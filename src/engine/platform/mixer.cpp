@@ -68,6 +68,10 @@ AudioID push_sound(SoundSource source) {
     if (audio_struct.num_free_sources) {
         u16 source_id =
             audio_struct.free_sources[--audio_struct.num_free_sources];
+        for (u32 i = 0; i < audio_struct.num_free_sources; i++) {
+            LOG("FREE: %d", audio_struct.free_sources[i]);
+        }
+        LOG("playing: %d", source_id);
         source.gen = audio_struct.sources[source_id].gen + 1;
         audio_struct.sources[source_id] = source;
         unlock_audio();
@@ -99,7 +103,7 @@ void stop_sound(AudioID id) {
     SoundSource *source = audio_struct.sources + id.slot;
     CHECK(source->gen == id.gen, "Invalid AudioID, the handle is outdated");
     if (source->gen == id.gen) {
-        audio_struct.free_sources[++audio_struct.num_free_sources] = id.slot;
+        audio_struct.free_sources[audio_struct.num_free_sources++] = id.slot;
         source->gain = 0.0;
     } else {
         ERR("Invalid removal of AudioID that does not exist");
@@ -125,6 +129,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
 
     f32 left_fade[NUM_SOURCES];
     f32 right_fade[NUM_SOURCES];
+
     for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
         SoundSource *source = data->sources + source_id;
         if (source->positional && source->gain != 0) {
@@ -174,7 +179,8 @@ void audio_callback(void* userdata, u8* stream, int len) {
                     index = 0;
                     source->sample = 0;
                 } else {
-                    data->free_sources[++data->num_free_sources] = source_id;
+                    LOG("stopped: %d", source_id);
+                    data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
                     continue;
                 }
