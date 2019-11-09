@@ -11,14 +11,19 @@ Physics::ShapeID square;
 
 Vec2 get_truck_pos();
 
+
+float MAX_TRASH_LEVEL = -15;
+float MIN_TRASH_LEVEL = -43;
+    
+f32 currentTrashLevel = MIN_TRASH_LEVEL;
+f32 groundLevel = currentTrashLevel + 11;
+    
 #include <vector>
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
 Truck truck;
 
-float MAX_TRASH_LEVEL = -15;
-float MIN_TRASH_LEVEL = -43;
 
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = 0.5;
@@ -28,6 +33,7 @@ float CAMERA_MIN = -20;
 
 std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
+
 
 Vec2 get_truck_pos() {
     return truck.body.position;
@@ -92,6 +98,11 @@ void update(f32 delta) {
     } else {
         Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
     }
+
+    if(currentTrashLevel > MAX_TRASH_LEVEL){
+	//Game_Over
+    }
+
 }
 
 // Main draw
@@ -110,10 +121,10 @@ void draw() {
 
     // Draw trash mountain.
     Renderer::push_sprite(V2((Renderer::global_camera.position.x /
-                              TRASH_MOUNTAIN_DISTANCE) + 60, -43),
+                              TRASH_MOUNTAIN_DISTANCE) + 60, currentTrashLevel),
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
     Renderer::push_sprite(V2((Renderer::global_camera.position.x /
-                              TRASH_MOUNTAIN_DISTANCE) - 60, -43),
+                              TRASH_MOUNTAIN_DISTANCE) - 60, currentTrashLevel),
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 }
 

@@ -62,27 +62,48 @@ struct Banana : public Enemy {
 
 struct TrashBag : public Enemy{
     TrashBag(Vec2 pos) :
-	Enemy(pos, V2(10,10), ASSET_TRASH, 0, 200),
+	Enemy(pos, V2(10,10), 0, 1),
 	velocity(V2(0,0)),
-	orig_pos(pos) {}
+	orig_pos(pos) {
+	    animation_delay = 0.5;
+	    images.push_back(ASSET_TRASH_SLEEP);
+	}
 
     const f32 SPEED = 1.5;
-    unsigned int groundStage = 0;
     bool onGround = false;
 
-    void update(f32 delta) override{
-	updateME(delta, 0);
-    }
-    
-    void updateME(f32 delta, f32 currentGroundY) {
+    void update(f32 delta) {
     
 	time += delta;
+	f32 buryTime; 
+	animate(time);
+
+	LOG("%f",pos.y);
+        LOG("%f",groundLevel);
+	
+	if(pos.y <= groundLevel){
+	    buryTime = (!onGround) ? time : buryTime;
+	    onGround = true;
+	}
+	
+	
 	if(!onGround){
 	    velocity.y = -SPEED;
+	    rotation = sin(time) / 3;
 	}else{
+	    velocity.y =0;
+	    animation_delay = 0.1;
+	    images.pop_back();
+	    images.push_back(ASSET_TRASH);
+            images.push_back(ASSET_TRASH_WALK);
+	    rotation = sin(time*2) /5;
+		
 	    //animate this.
-	    groundStage ++;
-	    if (groundStage >= 5){}
+	    LOG("%f", time);
+	    LOG("%f", buryTime);
+	    if (time - buryTime >= 5){
+		currentTrashLevel++;
+	    }
         }
 	pos += velocity * delta;
     }
