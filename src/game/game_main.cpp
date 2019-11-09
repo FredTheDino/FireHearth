@@ -97,7 +97,7 @@ Vec2 paralax(Vec2 position, f32 distance) {
 
 // Main logic
 void update(f32 delta) {
-
+    
     if (game_over) {
         // Do game over stuff
         return;
@@ -109,6 +109,14 @@ void update(f32 delta) {
     spawner.update(delta);
     update_enemies(delta);
 
+    
+    for (Enemy* enemy : enemies) {
+        Physics::Body enemy_body = enemy->get_body();
+        if (Physics::check_overlap(&enemy_body, &truck.body)){
+            game_over = true;
+        }
+    }
+    
     // Check for bullet collisions
     for (Bullet& bullet : bullets) {
         for (Enemy* enemy : enemies) {
@@ -117,7 +125,12 @@ void update(f32 delta) {
                 bullet.hit_enemy = true;
                 enemy->hp -= 1;
             }
+	    
+	    if (Physics::check_overlap(&enemy_body, &truck.body)){
+		game_over = true;
+	    }
         }
+	
     }
 
     if (down(Player::P1, Name::BOOST)) {

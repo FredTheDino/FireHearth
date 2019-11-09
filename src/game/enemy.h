@@ -80,13 +80,13 @@ struct TrashBag : public Enemy{
 	time += delta;
 	animate(time);
 	
-	if(pos.y <= groundLevel){
+	if (pos.y <= groundLevel){
             buryTime += delta ;
 	    onGround = true;
 	}
 	
 	
-	if(!onGround){
+	if (!onGround){
 	    velocity.y = -SPEED;
 	    rotation = sin(time) / 3;
 	}else{
