@@ -222,7 +222,7 @@ void emit_hit_particles(Vec2 position) {
 void emit_dead_particles(Vec2 position) {
     hit_particles.position = position;
     auto old = hit_particles.spawn_size;
-    hit_particles.spawn_size = {2.0, 3.0};
+    hit_particles.spawn_size = {2.0, 2.5};
     u32 count = random_int() % 10 + 15;
     for (u32 i = 0; i < count; i++) {
         hit_particles.spawn();
