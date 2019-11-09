@@ -3,7 +3,7 @@
 #define NO_ASSET 1024
 #define WORLD_LEFT_EDGE -20
 #define WORLD_RIGHT_EDGE 20
-
+#define WORLD_TOP_EDGE 10
 namespace Game {
 
 using namespace Input;

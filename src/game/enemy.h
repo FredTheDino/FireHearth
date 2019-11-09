@@ -46,6 +46,37 @@ struct Banana : public Enemy {
     Vec2 orig_pos;
 };
 
+struct TrashBag : public Enemy{
+    TrashBag(Vec2 pos) :
+	Enemy(pos, V2(10,10), ASSET_TRASH, 0, 200),
+	velocity(V2(0,0)),
+	orig_pos(pos) {}
+
+    const f32 SPEED = 1.5;
+    unsigned int groundStage = 0;
+    bool onGround = false;
+
+    void update(f32 delta) override{
+	updateME(delta, 0);
+    }
+    
+    void updateME(f32 delta, f32 currentGroundY) {
+    
+	time += delta;
+	if(!onGround){
+	    velocity.y = -SPEED;
+	}else{
+	    //animate this.
+	    groundStage ++;
+	    if (groundStage >= 5){}
+        }
+	pos += velocity * delta;
+    }
+    
+    Vec2 velocity; 
+    Vec2 orig_pos;
+};
+
 struct Spawner {
     Spawner(std::vector<Enemy*>* enemies) :
         enemies(enemies),
@@ -57,6 +88,11 @@ struct Spawner {
             f32 y = random_real(-5, 5);
             enemies->push_back(new Banana(V2(x, y)));
         }
+	if (enemies->size() < 4){
+	    f32 x = random_real() < 0.5 ? WORLD_LEFT_EDGE : WORLD_RIGHT_EDGE;
+            f32 y = WORLD_TOP_EDGE;
+            enemies->push_back(new TrashBag(V2(x, y)));
+	}
     }
 
     std::vector<Enemy*>* enemies;
