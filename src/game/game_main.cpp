@@ -1,11 +1,15 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 #define NO_ASSET 1024
+#define WORLD_LEFT_EDGE -20
+#define WORLD_RIGHT_EDGE 20
 
 namespace Game {
 
 using namespace Input;
 Physics::ShapeID square;
+
+Vec2 get_truck_pos();
 
 #include <vector>
 #include "entity.h"
@@ -14,6 +18,11 @@ Physics::ShapeID square;
 Truck truck;
 
 std::vector<Enemy*> enemies;
+Spawner spawner(&enemies);
+
+Vec2 get_truck_pos() {
+    return truck.body.position;
+}
 
 void draw_entity(Entity* entity) {
     if (entity->image != NO_ASSET) {
@@ -53,16 +62,12 @@ void setup() {
     truck = create_truck();
 
     Renderer::global_camera.zoom = 1.0 / 20.0;
-
-    Enemy* e = new Banana(V2(0, 0));
-    enemies.push_back(e);
-    e = new Banana(V2(5, 5));
-    enemies.push_back(e);
 }
 
 // Main logic
 void update(f32 delta) {
     truck.update(delta);
+    spawner.update(delta);
     for (Enemy* enemy : enemies) {
         enemy->update(delta);
     }
