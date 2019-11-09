@@ -4,6 +4,9 @@ const u32 TRASH_HP = 2;
 const u32 BANANA_INDEX = 1;
 const f32 BANANA_SIZE = 5;
 const u32 BANANA_HP = 5; 
+const u32 BIGBOI_INDEX = 2;
+const f32 BIGBOI_SIZE = 10;
+const u32 BIGBOI_HP = 5; 
 
 struct Enemy : public Entity {
     Enemy(Vec2 pos, Vec2 dim, f32 rotation, u32 hp) :
@@ -120,6 +123,41 @@ struct Banana : public Enemy {
     Vec2 orig_pos;
 };
 
+struct BigBoi : public Enemy {
+    const f32 SPEED = 5;
+    const f32 SPEED_CHASING = 10;
+
+    BigBoi(Vec2 pos) :
+        Enemy(pos, V2(BIGBOI_SIZE, BIGBOI_SIZE), 0, BIGBOI_HP),
+        velocity(V2(0, 0)),
+        orig_pos(pos) {
+            images.push_back(ASSET_TEST);
+	}
+
+    void update(f32 delta) override {
+        time += delta;
+        animate(time);
+
+	Vec2 to_player = get_truck_pos() - pos;
+	to_player.y = 0;
+
+        Vec2 goal = normalize(to_player) * SPEED_CHASING;
+        velocity = LERP(velocity, 0.2, goal);
+        animation_delay = 0.25;
+
+	pos += velocity * delta;
+        
+	if (pos.y < groundLevel){
+	    pos.y += 0.02;
+	}
+        
+    }
+
+    Vec2 velocity;
+    Vec2 orig_pos;
+};
+
+
 struct Spawner {
     Spawner(std::vector<Enemy*>* enemies) :
         enemies(enemies),
@@ -144,6 +182,10 @@ struct Spawner {
                     spawn_trashbag();
                     last_spawn[TRASHBAG_INDEX] = time;
                 }
+		if (time - last_spawn[BIGBOI_INDEX] > 10) {
+		    spawn_bigboi();
+		    last_spawn[BIGBOI_INDEX] = 10;
+		}
                 break;
             case 1:
                 if (time - last_spawn[TRASHBAG_INDEX] > 3) {
@@ -182,10 +224,16 @@ struct Spawner {
         enemies->push_back(new TrashBag(V2(x, y)));
     }
 
+    void spawn_bigboi() {
+	f32 x = random_real(WORLD_LEFT_EDGE * 0.9, WORLD_RIGHT_EDGE * 0.9);
+	f32 y = groundLevel;
+	enemies->push_back(new BigBoi(V2(x,y))); 
+    }
+    
     std::vector<Enemy*>* enemies;
     f32 time;
     u32 threat;
-    f32 last_spawn[2] = {-1, -1};
+    f32 last_spawn[3] = {-1, -1,-1};
 };
 
 Renderer::ParticleSystem hit_particles;
