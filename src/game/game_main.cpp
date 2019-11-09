@@ -128,7 +128,7 @@ void update(f32 delta) {
     }
 
     if (down(Player::P1, Name::BOOST)) {
-        Renderer::global_camera.shake = random_unit_vec2() * 0.01;
+        Renderer::global_camera.shake = random_unit_vec2() * 0.001;
     } else {
         Renderer::global_camera.shake = V2(0, 0);
     }
