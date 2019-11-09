@@ -28,7 +28,7 @@ void draw_entity(Entity* entity) {
     if (entity->image != NO_ASSET) {
         Image* img = Asset::fetch_image(entity->image);
         Renderer::push_sprite(entity->pos,
-                entity->dim,
+                -entity->dim,
                 entity->rotation,
                 entity->image,
                 V2(0,0),

@@ -15,7 +15,7 @@ struct Enemy : public Entity {
 
 struct Banana : public Enemy {
     Banana(Vec2 pos) :
-        Enemy(pos, V2(1, 1), ASSET_TEST, 0, 10),
+        Enemy(pos, V2(1, 1), ASSET_BANANA1, 0, 10),
         velocity(V2(0, 0)),
         orig_pos(pos) {}
 
