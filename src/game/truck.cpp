@@ -11,6 +11,10 @@ void Bullet::draw() {
     // Physics::debug_draw_body(&body);
 }
 
+bool Bullet::is_dead() const {
+    return hit_enemy || (Logic::now() - spawn_time) > BULLET_ALIVE_TIME;
+}
+
 void initalize_bullets() {
     bullets.reserve(128);
 }
@@ -33,10 +37,10 @@ void update_bullets(f32 delta) {
         bullet.update(delta);
     }
     auto is_dead = [](const Bullet &bullet) {
-        return (Logic::now() - bullet.spawn_time) > BULLET_ALIVE_TIME;
+        return bullet.is_dead();
     };
     bullets.erase(
-        std::remove_if(bullets.begin(), bullets.end(), is_dead),                
+        std::remove_if(bullets.begin(), bullets.end(), is_dead),
         bullets.end());
 }
 
