@@ -5,6 +5,7 @@
 const u32 NO_ASSET = 1024;
 const f32 WORLD_LEFT_EDGE  = -20;
 const f32 WORLD_RIGHT_EDGE =  20;
+const f32 WORLD_TOP_EDGE = 10;
 const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
 
 namespace Game {
@@ -14,6 +15,12 @@ Physics::ShapeID square;
 
 Vec2 get_truck_pos();
 
+float MAX_TRASH_LEVEL = -15;
+float MIN_TRASH_LEVEL = -43;
+    
+f32 currentTrashLevel = MIN_TRASH_LEVEL;
+f32 groundLevel = currentTrashLevel + 11;
+    
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
@@ -21,8 +28,6 @@ Vec2 get_truck_pos();
 
 Truck truck;
 
-float MAX_TRASH_LEVEL = -15;
-float MIN_TRASH_LEVEL = -43;
 
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = 0.5;
@@ -102,6 +107,11 @@ void update(f32 delta) {
     } else {
         Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
     }
+
+    if(currentTrashLevel >= MAX_TRASH_LEVEL){
+	//Game_Over
+    }
+
 }
 
 // Main draw
@@ -112,6 +122,16 @@ void draw() {
                              CASTLE_DISTANCE, -0.5), V2(43, -66), 0,
             ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
+
+    // Draw trash mountain.
+    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
+                              TRASH_MOUNTAIN_DISTANCE) + 60, currentTrashLevel),
+            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
+                              TRASH_MOUNTAIN_DISTANCE) - 60, currentTrashLevel),
+            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+
+
     truck.draw();
     draw_bullets();
     for (Enemy* enemy : enemies) {
@@ -120,13 +140,6 @@ void draw() {
         Physics::debug_draw_body(&body);
     }
 
-    // Draw trash mountain.
-    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
-                              TRASH_MOUNTAIN_DISTANCE) + 60, -43),
-            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
-                              TRASH_MOUNTAIN_DISTANCE) - 60, -43),
-            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-}
+    }
 
 }  // namespace Game
