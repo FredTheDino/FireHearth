@@ -15,6 +15,7 @@ using namespace Input;
 Physics::ShapeID square;
 bool game_over = false;
 Vec2 get_truck_pos();
+Vec2 paralax(Vec2 position, f32 distance);
 
 const float MAX_TRASH_LEVEL = -15;
 const float MIN_TRASH_LEVEL = -43;
