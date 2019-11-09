@@ -1,7 +1,9 @@
 const u32 TRASHBAG_INDEX = 0;
+const f32 TRASH_SIZE = 5;
+const u32 TRASH_HP = 2;
 const u32 BANANA_INDEX = 1;
 const f32 BANANA_SIZE = 5;
-const u32 BANANA_HP = 5;
+const u32 BANANA_HP = 5; 
 
 struct Enemy : public Entity {
     Enemy(Vec2 pos, Vec2 dim, f32 rotation, u32 hp) :
@@ -29,7 +31,7 @@ struct Enemy : public Entity {
 
 struct TrashBag : public Enemy{
     TrashBag(Vec2 pos) :
-    Enemy(pos, V2(5,5), 0, 1),
+    Enemy(pos, V2(TRASH_SIZE, TRASH_SIZE), 0, TRASH_HP),
     velocity(V2(0,0)),
     orig_pos(pos) {
         animation_delay = 0.5;
@@ -42,36 +44,32 @@ struct TrashBag : public Enemy{
 
     void update(f32 delta) {
 
-    time += delta;
-    animate(time);
+	time += delta;
+	animate(time);
 
-    if(pos.y <= groundLevel){
+	if (pos.y <= groundLevel){
             buryTime += delta ;
-        onGround = true;
-    }
+	    onGround = true;
+	}
 
-    if(!onGround){
-        velocity.y = -SPEED;
-        rotation = sin(time) / 3;
-    }else{
-        velocity.y =0;
-        animation_delay = 0.1;
-        images.pop_back();
-        images.push_back(ASSET_TRASH);
-        images.push_back(ASSET_TRASH_WALK);
-        rotation = sin(time*10) /5;
+	if (!onGround){
+	    velocity.y = -SPEED;
+	    rotation = sin(time) / 3;
+	}else{
+	    velocity.y =0;
+	    animation_delay = 0.1;
+	    images.pop_back();
+	    images.push_back(ASSET_TRASH);
+	    images.push_back(ASSET_TRASH_WALK);
+	    rotation = sin(time*10) /5;
 
-        //animate this.
-        //LOG("%f", time);
-        //LOG("%f", buryTime);
-        LOG("%f", (buryTime));
-        if (buryTime >= 3){
-        goalTrashLevel++;
-        groundLevel++;
-        hp = 0;
-        }
-        }
-    pos += velocity * delta;
+	    if (buryTime >= 3){
+		goalTrashLevel++;
+		groundLevel++;
+		hp = 0;
+	    }
+	}
+	pos += velocity * delta;
     }
 
     Vec2 velocity;
