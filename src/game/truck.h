@@ -14,10 +14,13 @@ struct Bullet {
     f32 angle;
     f32 speed = 20.0;
     Vec2 dimension = V2(BULLET_SPRITE.z, BULLET_SPRITE.w) * PIXEL_TO_WORLD;
+    bool hit_enemy = false;
     
     void update(f32 delta);
 
     void draw();
+    
+    bool is_dead() const;
 };
 
 struct Truck {

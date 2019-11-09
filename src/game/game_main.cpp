@@ -5,6 +5,7 @@
 const u32 NO_ASSET = 1024;
 const f32 WORLD_LEFT_EDGE  = -20;
 const f32 WORLD_RIGHT_EDGE =  20;
+const f32 WORLD_TOP_EDGE = 10;
 const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
 
 namespace Game {
@@ -14,6 +15,12 @@ Physics::ShapeID square;
 
 Vec2 get_truck_pos();
 
+float MAX_TRASH_LEVEL = -15;
+float MIN_TRASH_LEVEL = -43;
+    
+f32 currentTrashLevel = MIN_TRASH_LEVEL;
+f32 groundLevel = currentTrashLevel + 11;
+    
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
@@ -21,17 +28,12 @@ Vec2 get_truck_pos();
 
 Truck truck;
 
-float MAX_TRASH_LEVEL = -15;
-float MIN_TRASH_LEVEL = -43;
 
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
 
 float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
-
-std::vector<Enemy*> enemies;
-Spawner spawner(&enemies);
 
 Vec2 get_truck_pos() {
     return truck.body.position;
@@ -94,11 +96,32 @@ void update(f32 delta) {
     truck.update(delta);
     update_bullets(delta);
     spawner.update(delta);
-    for (Enemy* enemy : enemies) {
-        enemy->update(delta);
+    update_enemies(delta);
+
+    // Check for bullet collisions
+    for (Bullet& bullet : bullets) {
+        for (Enemy* enemy : enemies) {
+            Physics::Body enemy_body = enemy->get_body();
+            if (check_overlap(&bullet.body, &enemy_body)) {
+                bullet.hit_enemy = true;
+                enemy->hp -= 1;
+            }
+        }
     }
 
-    camera_follow(truck.body.position, delta);
+    if (-truck.body.position.x > CAMERA_MAX) {
+        Renderer::global_camera.position.x = CAMERA_MAX;
+    }
+    else if (-truck.body.position.x < CAMERA_MIN) {
+        Renderer::global_camera.position.x = CAMERA_MIN;
+    } else {
+        Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
+    }
+
+    if(currentTrashLevel >= MAX_TRASH_LEVEL){
+	//Game_Over
+    }
+
 }
 
 // Main draw
@@ -108,17 +131,23 @@ void draw() {
     Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
             ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
+
+    // Draw trash mountain.
+
+    Renderer::push_sprite(paralax(V2( 60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+    Renderer::push_sprite(paralax(V2(-60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+
+
     truck.draw();
     draw_bullets();
     for (Enemy* enemy : enemies) {
         draw_entity(enemy);
+        Physics::Body body = enemy->get_body();
+        Physics::debug_draw_body(&body);
     }
 
-    // Draw trash mountain.
-    Renderer::push_sprite(paralax(V2( 60, -43), TRASH_MOUNTAIN_DISTANCE),
-            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-    Renderer::push_sprite(paralax(V2(-60, -43), TRASH_MOUNTAIN_DISTANCE),
-            V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-}
+    }
 
 }  // namespace Game

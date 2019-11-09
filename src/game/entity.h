@@ -8,6 +8,14 @@ struct Entity {
 
     virtual void update(f32 delta) = 0;
 
+    virtual Physics::Body get_body() {
+        Physics::Body body = Physics::create_body(square);
+        body.position = pos;
+        body.scale = dim * 0.75;
+        body.rotation = rotation;
+        return body;
+    }
+
     Vec2 pos;
     Vec2 dim;
     AssetID image;
