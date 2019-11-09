@@ -1,8 +1,11 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
-#define NO_ASSET 1024
-#define WORLD_LEFT_EDGE -20
-#define WORLD_RIGHT_EDGE 20
+#include <vector>
+
+const u32 NO_ASSET = 1024;
+const f32 WORLD_LEFT_EDGE  = -20;
+const f32 WORLD_RIGHT_EDGE =  20;
+const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
 
 namespace Game {
 
@@ -11,10 +14,11 @@ Physics::ShapeID square;
 
 Vec2 get_truck_pos();
 
-#include <vector>
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
+#include "truck.cpp"
+
 Truck truck;
 
 float MAX_TRASH_LEVEL = -15;
