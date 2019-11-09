@@ -18,6 +18,7 @@ Vec2 get_truck_pos();
 #include "enemy.h"
 #include "truck.h"
 #include "truck.cpp"
+#include "clouds.h"
 
 Truck truck;
 
@@ -74,7 +75,11 @@ void setup() {
 
     truck = create_truck();
 
+	createCloudSystems();
+
     Renderer::global_camera.zoom = 3.335 / 200.0;
+
+	Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
 }
 
 void camera_follow(Vec2 target, f32 delta) {
@@ -99,12 +104,18 @@ void update(f32 delta) {
     }
 
     camera_follow(truck.body.position, delta);
+
+	// spawnCloud();
+	updateClouds(delta);
 }
 
 // Main draw
 void draw() {
     Renderer::push_sprite(paralax(V2(0, 0), 1.0), V2(120, -67), 0,
             ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
+
+	drawClouds();
+
     Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
             ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
@@ -119,6 +130,7 @@ void draw() {
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
     Renderer::push_sprite(paralax(V2(-60, -43), TRASH_MOUNTAIN_DISTANCE),
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+
 }
 
 }  // namespace Game
