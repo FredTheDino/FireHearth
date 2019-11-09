@@ -28,7 +28,9 @@ void main() {
     if (pass_uv.z < 0.0) {
         color = pass_color;
     } else {
-        color = pass_color * texture(sprites, pass_uv);
+        vec4 sampled_color = texture(sprites, pass_uv);
+        if (sampled_color.a < 0.3) discard;
+        color = pass_color * sampled_color;
     }
 }
 
