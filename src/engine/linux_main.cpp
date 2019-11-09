@@ -146,6 +146,7 @@ int main(int argc, char **argv) {
         Game::update(Logic::delta());
         Logic::call(Logic::At::POST_UPDATE);
 
+        Renderer::global_camera.time = Logic::now();
         Mixer::audio_struct.position = Renderer::global_camera.position;
 
         START_PERF(RENDER);

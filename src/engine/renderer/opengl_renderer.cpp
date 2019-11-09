@@ -28,6 +28,8 @@ static Program compile_shader_program_from_source(const char *source) {
         "    float aspect_ratio;\n",
         "    float width;\n",
         "    float height;\n",
+        "    float time;\n",
+        "    vec2 shake;\n",
         "};",
         source};
     glShaderSource(vert, LEN(complete_source), complete_source, NULL);
