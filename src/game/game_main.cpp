@@ -3,9 +3,10 @@
 #include <vector>
 
 const u32 NO_ASSET = 1024;
-const f32 WORLD_LEFT_EDGE  = -50;
-const f32 WORLD_RIGHT_EDGE =  50;
-const f32 WORLD_TOP_EDGE = 50;
+const f32 WORLD_LEFT_EDGE  = -80;
+const f32 WORLD_RIGHT_EDGE =  80;
+const f32 WORLD_TOP_EDGE = 34;
+const f32 WORLD_BOTTOM_EDGE = -34;
 const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
 
 namespace Game {
@@ -18,11 +19,11 @@ Vec2 get_truck_pos();
 const float MAX_TRASH_LEVEL = -15;
 const float MIN_TRASH_LEVEL = -43;
 const float TRASH_VELOCITY = 0.01;
-    
+
 f32 currentTrashLevel = -50;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + 20;
-    
+
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
