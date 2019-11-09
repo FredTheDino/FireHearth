@@ -43,33 +43,32 @@ struct TrashBag : public Enemy{
     bool onGround = false;
 
     void update(f32 delta) {
+        time += delta;
+        animate(time);
 
-	time += delta;
-	animate(time);
+        if (pos.y <= groundLevel) {
+            buryTime += delta;
+            onGround = true;
+        }
 
-	if (pos.y <= groundLevel){
-            buryTime += delta ;
-	    onGround = true;
-	}
+        if (!onGround) {
+            velocity.y = -SPEED;
+            rotation = sin(time) / 3;
+        } else {
+            velocity.y = 0;
+            animation_delay = 0.1;
+            images.pop_back();
+            images.push_back(ASSET_TRASH);
+            images.push_back(ASSET_TRASH_WALK);
+            rotation = sin(time * 10) / 5;
 
-	if (!onGround){
-	    velocity.y = -SPEED;
-	    rotation = sin(time) / 3;
-	}else{
-	    velocity.y =0;
-	    animation_delay = 0.1;
-	    images.pop_back();
-	    images.push_back(ASSET_TRASH);
-	    images.push_back(ASSET_TRASH_WALK);
-	    rotation = sin(time*10) /5;
-
-	    if (buryTime >= 3){
-		goalTrashLevel++;
-		groundLevel++;
-		hp = 0;
-	    }
-	}
-	pos += velocity * delta;
+            if (buryTime >= 3) {
+                goalTrashLevel++;
+                groundLevel++;
+                hp = 0;
+            }
+        }
+        pos += velocity * delta;
     }
 
     Vec2 velocity;
