@@ -60,7 +60,6 @@ void return_arean(MemoryArena *arena) {
 template <typename T>
 T *MemoryArena::push(u64 count) {
     u64 allocation_size = sizeof(T) * count;
-    LOG("count : %d", count);
     ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Too large allocation");
     // TODO(ed): Should do boundry checking here.
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {

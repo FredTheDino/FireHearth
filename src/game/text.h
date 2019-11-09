@@ -12,7 +12,7 @@ Vec4 BITMAP_FONT[] = {
     V4(107,  0, 11, 15), // 9 
 
     // 10
-    V4(  1,  0, 13, 13), // A
+    V4(  1, 17, 13, 13), // A
     V4( 16, 17, 14, 13), // B
     V4( 31, 17, 15, 13), // C
     V4( 46, 17, 14, 13), // D
@@ -33,7 +33,7 @@ Vec4 BITMAP_FONT[] = {
     V4(244, 17, 13, 13), // S
     V4(258, 17, 12, 13), // T
     V4(276, 17, 12, 13), // U
-    V4(286, 17, 14, 13), // V
+    V4(284, 17, 13, 13), // V
     V4(298, 17, 13, 13), // W
     V4(313, 17, 15, 13), // X
     V4(328, 17, 14, 13), // Y
@@ -73,8 +73,19 @@ u32 char_to_index(char c) {
     if (c == ' ')
         return 41;
 
-    LOG("*%d*", c);
     return -1;
+}
+
+Vec2 messure_text(const char *text, f32 scale = 1.0) {
+    char c;
+    f32 width = 0.0;
+    f32 height = 0.0;
+    while ((c = *(text++))) {
+        Vec4 coords = BITMAP_FONT[char_to_index(c)];
+        width += coords.z * PIXEL_TO_WORLD + 0.5;
+        height = MAX(height, coords.w * PIXEL_TO_WORLD);
+    }
+    return V2(width * scale, height * scale);
 }
 
 void draw_text(const char *text, Vec2 position, f32 scale = 1.0, f32 wave = 0.0) {
@@ -84,7 +95,7 @@ void draw_text(const char *text, Vec2 position, f32 scale = 1.0, f32 wave = 0.0)
     while ((c = *(text++))) {
         i++;
         Vec4 coords = BITMAP_FONT[char_to_index(c)];
-        Vec2 dim = V2(coords.z, -coords.w) * PIXEL_TO_WORLD;
+        Vec2 dim = V2(coords.z, -coords.w) * scale * PIXEL_TO_WORLD;
         Vec2 offset = V2(0, sin(i + Logic::now())) * wave;
         Renderer::push_sprite(position + offset + pixel_offset,
                               dim, 0,
@@ -98,7 +109,7 @@ void draw_text(const char *text, Vec2 position, f32 scale = 1.0, f32 wave = 0.0)
                               V2(coords.x, coords.y),
                               V2(coords.z, coords.w),
                               COLORS[0]);
-        position += V2(dim.x + 1.0 * PIXEL_TO_WORLD, 0.0);
+        position += V2(dim.x + 0.5 * scale, 0.0);
     }                         
 }
 
