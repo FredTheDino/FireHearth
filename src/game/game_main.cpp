@@ -27,6 +27,7 @@ f32 groundLevel = currentTrashLevel + 20;
 #include "enemy.h"
 #include "truck.h"
 #include "truck.cpp"
+#include "clouds.h"
 #include "gameover.cpp"
 
 Truck truck;
@@ -82,7 +83,11 @@ void setup() {
 
     truck = create_truck();
 
+	createCloudSystems();
+
     Renderer::global_camera.zoom = 3.335 / 200.0;
+
+	Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
 }
 
 void camera_follow(Vec2 target, f32 delta) {
@@ -127,6 +132,9 @@ void update(f32 delta) {
     }
 
     camera_follow(truck.body.position, delta);
+
+	updateClouds(delta);
+
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
         game_over = true;
     } else if (currentTrashLevel < goalTrashLevel){
@@ -138,6 +146,8 @@ void update(f32 delta) {
 void draw() {
     Renderer::push_sprite(paralax(V2(0, 0), 1.0), V2(120, -67), 0,
                           ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
+	drawClouds();
+
     Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
                           ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
@@ -160,7 +170,6 @@ void draw() {
             Physics::debug_draw_body(&body);
         }
     }
-
 }
 
 }  // namespace Game
