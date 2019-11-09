@@ -93,7 +93,7 @@ void update(f32 delta) {
 	else if (-truck.body.position.x < CAMERA_MIN) {
 		Renderer::global_camera.position.x = CAMERA_MIN;
 	} else {
-		Renderer::global_camera.position.x = -truck.body.position.x;
+		Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
 	}
 }
 
