@@ -75,18 +75,22 @@ void Truck::update(f32 delta) {
     }
     smoke_particles.spawn();
 
+    if (body.position.y <= groundLevel){
+	game_over = true;
+    }
+
+    
+
     if (pressed(Player::P1, Name::BOOST)) {
         body.velocity += normalize(body.velocity) * TRUCK_BOOST_INITIAL;
     }
-
     if (down(Player::P1, Name::BOOST))
-        boost(delta);
-
+        boost(delta);  
     if (down(Player::P1, Name::UP))
         forward = rotate(forward, TRUCK_ROTATION_SPEED * delta);
     if (down(Player::P1, Name::DOWN))
         forward = rotate(forward, -TRUCK_ROTATION_SPEED * delta);
-
+    
     // TODO(ed): Backheavy when falling.
     forward = normalize(forward + body.velocity * TRUCK_VELOCITY_WEIGHT);
     Vec2 normal_dir = rotate_ccw(forward);
@@ -99,7 +103,9 @@ void Truck::update(f32 delta) {
     if (down(Player::P1, Name::SHOOT) &&
         Logic::now() >= last_shot + TRUCK_SHOOT_DELAY) {
             create_bullet(body.position + forward * dimension.x * 0.5, forward);
-            last_shot = Logic::now();
+            last_shot = Logic::now(); 
+	    Mixer::play_sound(ASSET_NOISE, 1.0, 0.5);
+
     }
 
     smoke_particles.update(delta);

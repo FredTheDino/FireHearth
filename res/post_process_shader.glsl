@@ -21,21 +21,9 @@ in vec4 pass_color;
 out vec4 color;
 
 void main() {
-    vec2 pixel_offset = vec2(1.0 / width, 1.0 / height);
-    const int kernal_size = 0;
-    if (bool(kernal_size)) {
-        vec4 accumulator = vec4(0);
-        for (int x = -kernal_size; x <= kernal_size; x++) {
-            for (int y = -kernal_size; y <= kernal_size; y++) {
-                vec2 relative = pixel_offset * vec2(x, y);
-                accumulator += texture(screen_sampler, pass_uv + relative);
-            }
-        }
-        color = accumulator / float((kernal_size * 2 + 1) * (kernal_size * 2 + 1));
-    } else {
-        color = texture(screen_sampler, pass_uv);
-    }
-    color *= color;
+    vec2 pixel_offset = vec2(shake.x, shake.y);
+    color = texture(screen_sampler, pass_uv + pixel_offset);
+    color = color;
 }
 
 #endif

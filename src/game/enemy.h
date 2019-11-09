@@ -1,7 +1,9 @@
 const u32 TRASHBAG_INDEX = 0;
+const f32 TRASH_SIZE = 5;
+const u32 TRASH_HP = 2;
 const u32 BANANA_INDEX = 1;
 const f32 BANANA_SIZE = 5;
-const u32 BANANA_HP = 5;
+const u32 BANANA_HP = 5; 
 
 struct Enemy : public Entity {
     Enemy(Vec2 pos, Vec2 dim, f32 rotation, u32 hp) :
@@ -29,7 +31,7 @@ struct Enemy : public Entity {
 
 struct TrashBag : public Enemy{
     TrashBag(Vec2 pos) :
-    Enemy(pos, V2(5,5), 0, 1),
+    Enemy(pos, V2(TRASH_SIZE, TRASH_SIZE), 0, TRASH_HP),
     velocity(V2(0,0)),
     orig_pos(pos) {
         animation_delay = 0.5;
@@ -42,36 +44,32 @@ struct TrashBag : public Enemy{
 
     void update(f32 delta) {
 
-    time += delta;
-    animate(time);
+	time += delta;
+	animate(time);
 
-    if(pos.y <= groundLevel){
+	if (pos.y <= groundLevel){
             buryTime += delta ;
-        onGround = true;
-    }
+	    onGround = true;
+	}
 
-    if(!onGround){
-        velocity.y = -SPEED;
-        rotation = sin(time) / 3;
-    }else{
-        velocity.y =0;
-        animation_delay = 0.1;
-        images.pop_back();
-        images.push_back(ASSET_TRASH);
-        images.push_back(ASSET_TRASH_WALK);
-        rotation = sin(time*10) /5;
+	if (!onGround){
+	    velocity.y = -SPEED;
+	    rotation = sin(time) / 3;
+	}else{
+	    velocity.y =0;
+	    animation_delay = 0.1;
+	    images.pop_back();
+	    images.push_back(ASSET_TRASH);
+	    images.push_back(ASSET_TRASH_WALK);
+	    rotation = sin(time*10) /5;
 
-        //animate this.
-        //LOG("%f", time);
-        //LOG("%f", buryTime);
-        LOG("%f", (buryTime));
-        if (buryTime >= 3){
-        goalTrashLevel++;
-        groundLevel++;
-        hp = 0;
-        }
-        }
-    pos += velocity * delta;
+	    if (buryTime >= 3){
+		goalTrashLevel++;
+		groundLevel++;
+		hp = 0;
+	    }
+	}
+	pos += velocity * delta;
     }
 
     Vec2 velocity;
@@ -121,7 +119,6 @@ struct Banana : public Enemy {
     Vec2 velocity;
     Vec2 orig_pos;
 };
-
 
 struct Spawner {
     Spawner(std::vector<Enemy*>* enemies) :
@@ -191,15 +188,77 @@ struct Spawner {
     f32 last_spawn[2] = {-1, -1};
 };
 
+Renderer::ParticleSystem hit_particles;
 std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
 
+void initalize_enemies() {
+    enemies.reserve(64);
+
+    hit_particles = Renderer::create_particle_system(500, V2(0, 0));
+    hit_particles.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 19, 1, 1, 1);
+    hit_particles.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 22, 1, 1, 1);
+    hit_particles.one_alpha = true;
+    hit_particles.alive_time = {0.5, 1.0};
+    hit_particles.rotation = {};
+    hit_particles.velocity_dir = {-PI / 2, PI / 2};
+    hit_particles.velocity = {-5, 5};
+    hit_particles.damping = {0.8, 1.0};
+    hit_particles.acceleration = {2.0, 3.0};
+    hit_particles.spawn_size = {1.0, 0.9};
+    hit_particles.die_size = {0.0, 0.0};
+}
+
+void emit_hit_particles(Vec2 position) {
+    hit_particles.position = position;
+    u32 count = random_int() % 10 + 15;
+    for (u32 i = 0; i < count; i++) {
+        hit_particles.spawn();
+    }
+}
+
+void emit_dead_particles(Vec2 position) {
+    hit_particles.position = position;
+    auto old = hit_particles.spawn_size;
+    hit_particles.spawn_size = {2.0, 2.5};
+    u32 count = random_int() % 10 + 15;
+    for (u32 i = 0; i < count; i++) {
+        hit_particles.spawn();
+    }
+    hit_particles.spawn_size = old;
+}
+
 void update_enemies(f32 delta) {
+    hit_particles.update(delta);
     for (s32 i = enemies.size() - 1; i >= 0; i--) {
         enemies[i]->update(delta);
         if (enemies[i]->is_dead()) {
+            emit_dead_particles(enemies[i]->pos);
             delete enemies[i];
             enemies.erase(enemies.begin() + i);
         }
+    }
+}
+
+void draw_entity(Entity* entity) {
+    if (entity->image != NO_ASSET) {
+        Image* img = Asset::fetch_image(entity->image);
+        Renderer::push_sprite(entity->pos,
+                -entity->dim,
+                entity->rotation,
+                entity->image,
+                V2(0,0),
+                V2(img->width, img->height));
+    } else {
+        Renderer::push_rectangle(entity->pos, entity->dim);
+    }
+}
+
+void draw_enemies() {
+    hit_particles.draw();
+    for (Enemy* enemy : enemies) {
+        draw_entity(enemy);
+        Physics::Body body = enemy->get_body();
+        Physics::debug_draw_body(&body);
     }
 }
