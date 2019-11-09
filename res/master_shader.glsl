@@ -30,7 +30,7 @@ void main() {
     } else {
         vec4 sampled_color = texture(sprites, pass_uv);
         if (sampled_color.a < 0.1) discard;
-        color = pass_color * sqrt(sampled_color);
+        color = pass_color * sampled_color;
     }
 }
 

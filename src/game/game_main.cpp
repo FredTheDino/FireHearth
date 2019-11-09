@@ -117,11 +117,17 @@ void update(f32 delta) {
         }
     }
 
+    if (down(Player::P1, Name::BOOST)) {
+        Renderer::global_camera.shake = random_unit_vec2() * 0.001;
+    } else {
+        Renderer::global_camera.shake = V2(0, 0);
+    }
+
     camera_follow(truck.body.position, delta);
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
         game_over = true;
     } else if (currentTrashLevel < goalTrashLevel){
-	currentTrashLevel += TRASH_VELOCITY;
+        currentTrashLevel += TRASH_VELOCITY;
     }
 }
 

@@ -14,6 +14,8 @@ struct Camera {
     f32 zoom = 1.0;
     f32 aspect_ratio; // height / width
     f32 width, height;
+    f32 time;
+    Vec2 shake;
 };
 #pragma pack(pop)
 
