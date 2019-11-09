@@ -3,7 +3,13 @@ const f32 TRASH_SIZE = 5;
 const u32 TRASH_HP = 2;
 const u32 BANANA_INDEX = 1;
 const f32 BANANA_SIZE = 5;
-const u32 BANANA_HP = 5; 
+const u32 BANANA_HP = 5;
+const u32 BIGBOI_INDEX = 2;
+const f32 BIGBOI_SIZE = 10;
+const u32 BIGBOI_HP = 10;
+const f32 BIGBOI_BULLET_SIZE = 5;
+const f32 BIGBOI_BULLET_SPEED = 40;
+const f32 BIGBOI_BULLET_ACCELERATION = -15;
 
 struct Enemy : public Entity {
     Enemy(Vec2 pos, Vec2 dim, f32 rotation, u32 hp) :
@@ -119,6 +125,51 @@ struct Banana : public Enemy {
     Vec2 orig_pos;
 };
 
+struct Spawner;
+
+struct BigBoi : public Enemy {
+    const f32 SPEED = 5;
+    const f32 SPEED_CHASING = 10;
+
+    BigBoi(Vec2 pos, Spawner* spawner) :
+        Enemy(pos, V2(BIGBOI_SIZE, BIGBOI_SIZE), 0, BIGBOI_HP),
+        velocity(V2(0, 0)),
+        orig_pos(pos),
+        spawner(spawner),
+        fired(false) {
+            animation_delay = 0.25;
+            images.push_back(ASSET_BIGBOI_LEFT);
+            images.push_back(ASSET_BIGBOI_RIGHT);
+    }
+
+    void update(f32 delta) override;
+
+    Vec2 velocity;
+    Vec2 orig_pos;
+    Spawner* spawner;
+    bool fired;
+};
+
+struct BigBoiBullet : public Enemy {
+    BigBoiBullet(Vec2 pos) :
+        Enemy(pos, V2(BIGBOI_BULLET_SIZE, BIGBOI_BULLET_SIZE), 0, 1),
+        velocity(V2(0, BIGBOI_BULLET_SPEED)),
+        acceleration(V2(0, BIGBOI_BULLET_ACCELERATION)),
+        orig_y(pos.y) {
+            image = ASSET_BIGBOI_BULLET;
+    }
+
+    void update(f32 delta) override {
+        velocity += acceleration * delta;
+        pos += velocity * delta;
+        if (pos.y < orig_y) hp = 0;
+    }
+
+    Vec2 velocity;
+    Vec2 acceleration;
+    f32 orig_y;
+};
+
 struct Spawner {
     Spawner(std::vector<Enemy*>* enemies) :
         enemies(enemies),
@@ -159,9 +210,13 @@ struct Spawner {
                     spawn_trashbag();
                     last_spawn[TRASHBAG_INDEX] = time;
                 }
-                if (time - last_spawn[BANANA_INDEX] > 5) {
+                if (time - last_spawn[BANANA_INDEX] > 8) {
                     spawn_banana();
                     last_spawn[BANANA_INDEX] = time;
+                }
+                if (time - last_spawn[BIGBOI_INDEX] > 25) {
+                    spawn_bigboi();
+                    last_spawn[BIGBOI_INDEX] = time;
                 }
                 break;
             default:
@@ -181,10 +236,27 @@ struct Spawner {
         enemies->push_back(new TrashBag(V2(x, y)));
     }
 
+    void spawn_bigboi() {
+        f32 x = random_real(WORLD_LEFT_EDGE * 0.9, WORLD_RIGHT_EDGE * 0.9);
+        f32 y = groundLevel;
+        enemies->push_back(new BigBoi(V2(x,y), this));
+    }
+
+    void spawn_bigboibullet(Vec2 pos) {
+        enemies->push_back(new BigBoiBullet(pos));
+    }
+
+    void reset() {
+        time = 0;
+        last_spawn[0] = -1;
+        last_spawn[1] = -1;
+        last_spawn[2] = -1;
+    }
+
     std::vector<Enemy*>* enemies;
     f32 time;
     u32 threat;
-    f32 last_spawn[2] = {-1, -1};
+    f32 last_spawn[3] = { -1, -1, -1 };
 };
 
 Renderer::ParticleSystem hit_particles;
@@ -192,8 +264,8 @@ std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
 
 void initalize_enemies() {
-    spawner.time = 0;
-    for (Enemy* enemy : enemies) { 
+    spawner.reset();
+    for (Enemy* enemy : enemies) {
         delete enemy;
     }
     enemies.clear();
@@ -265,4 +337,33 @@ void draw_enemies() {
         Physics::Body body = enemy->get_body();
         Physics::debug_draw_body(&body);
     }
+}
+
+
+void BigBoi::update(f32 delta) {
+    time += delta;
+
+    if (time < 4) {
+        animate(time);
+        Vec2 to_player = get_truck_pos() - pos;
+        to_player.y = 0;
+
+        Vec2 goal = normalize(to_player) * SPEED_CHASING;
+        velocity = LERP(velocity, 0.2, goal);
+
+        pos += velocity * delta;
+    } else if (time < 4.5) {
+        image = ASSET_BIGBOI_PREP_FIRE;
+    } else if (time < 4.75) {
+        image = ASSET_BIGBOI_FIRE;
+        if (!fired) {
+            fired = true;
+            spawner->spawn_bigboibullet(pos);
+        }
+    } else {
+        fired = false;
+        time = 0;
+    }
+
+    pos.y = groundLevel;
 }
