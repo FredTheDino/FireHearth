@@ -63,17 +63,22 @@ void setup() {
 // Main logic
 void update(f32 delta) {
     truck.update(delta);
+
     for (Enemy* enemy : enemies) {
         enemy->update(delta);
     }
+
+    update_bullets(delta);
 }
 
 // Main draw
 void draw() {
     truck.draw();
-    for (Enemy* enemy : enemies) {
-        draw_entity(enemy);
-    }
+    // for (Enemy* enemy : enemies) {
+    //     draw_entity(enemy);
+    // }
+
+    draw_bullets();
 }
 
 }  // namespace Game
