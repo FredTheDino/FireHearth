@@ -1,6 +1,8 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 #include <vector>
+#include <string>
+#include <fstream>
 
 const u32 NO_ASSET = 1024;
 const f32 WORLD_LEFT_EDGE  = -80;
@@ -24,6 +26,7 @@ f32 currentTrashLevel = -50;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + 20;
 
+#include "highscore.h"
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
@@ -53,7 +56,7 @@ void setup() {
     // Bind arrow keys
     add(K(UP), Player::P1, Name::BOOST);
     add(K(RIGHT), Player::P1, Name::UP);
-    //add(K(DOWN), Player::P1, Name::DOWN); Add brake?
+    add(K(DOWN), Player::P1, Name::DOWN); //Add brake?
     add(K(LEFT), Player::P1, Name::DOWN);
 
     // Shoot!
@@ -61,6 +64,9 @@ void setup() {
 
     // Restart
     add(K(r), Player::P1, Name::RESTART);
+
+	//Confirm
+	add(K(ENTER), Player::P1, Name:: CONFIRM); 
 
     Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
               ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
@@ -102,6 +108,15 @@ Vec2 paralax(Vec2 position, f32 distance) {
 void update(f32 delta) {
 
     if (game_over) {
+		if (pressed(Player::P1, Name::BOOST)) {
+			//cycle letter u on.
+		}
+		if (pressed(Player::P1, Name::DOWN)) {
+			//cycle letter u on.
+		}
+		if (pressed(Player::P1, Name::CONFIRM)) {
+			//cycle enrty space
+		}
         if (down(Player::P1, Name::RESTART)) {
             game_over = false;
             initalize_enemies();
