@@ -30,9 +30,6 @@ float TRASH_MOUNTAIN_DISTANCE = 0.5;
 float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
 
-std::vector<Enemy*> enemies;
-Spawner spawner(&enemies);
-
 Vec2 get_truck_pos() {
     return truck.body.position;
 }
@@ -84,8 +81,17 @@ void update(f32 delta) {
     truck.update(delta);
     update_bullets(delta);
     spawner.update(delta);
-    for (Enemy* enemy : enemies) {
-        enemy->update(delta);
+    update_enemies(delta);
+
+    // Check for bullet collisions
+    for (Bullet& bullet : bullets) {
+        for (Enemy* enemy : enemies) {
+            Physics::Body enemy_body = enemy->get_body();
+            if (check_overlap(&bullet.body, &enemy_body)) {
+                bullet.hit_enemy = true;
+                enemy->hp -= 1;
+            }
+        }
     }
 
     if (-truck.body.position.x > CAMERA_MAX) {
