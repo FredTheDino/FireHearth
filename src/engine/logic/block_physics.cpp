@@ -127,8 +127,8 @@ void debug_draw_body(Body *body) {
 				body->rotation);
 		u += body->position;
 
-        Renderer::push_point(v, V4(0.1f, 0.2f, 0.7f, 1.0f));
-        Renderer::push_line(u, v, V4(0.7f, 0.2f, 0.1f, 1.0f));
+        Renderer::push_point(v, V4(0.1f, 0.2f, 0.7f, 1.0f), 0.5);
+        Renderer::push_line(u, v, V4(0.7f, 0.2f, 0.1f, 1.0f), 0.4);
 	}
 
 	Vec2 middle = body->position + body->offset;
@@ -138,7 +138,7 @@ void debug_draw_body(Body *body) {
                                                 inverse(body->scale)),
                             body->rotation)) * 0.5;
         Renderer::push_line(middle - normal, middle + normal,
-                            V4(0.2f, 0.7f, 0.1f, 1.0f));
+                            V4(0.2f, 0.7f, 0.1f, 1.0f), 0.4);
     }
 }
 

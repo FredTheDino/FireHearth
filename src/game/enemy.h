@@ -1,11 +1,18 @@
 struct Enemy : public Entity {
-    Enemy(Vec2 pos, Vec2 dim, AssetID image, f32 rotation, u32 hp) :
-        Entity(pos, dim, image, rotation),
+    Enemy(Vec2 pos, Vec2 dim, f32 rotation, u32 hp) :
+        Entity(pos, dim, ASSET_TEST, rotation),
         hp(hp),
-        time(0) {}
+        time(0),
+        animation_delay(1) {}
 
     u32 hp;
     f32 time;
+    f32 animation_delay;
+    std::vector<AssetID> images;
+
+    void animate(f32 time) {
+        image = images[(u32)(time / animation_delay) % images.size()];
+    }
 
     bool is_dead() {
         return hp <= 0;
@@ -15,16 +22,23 @@ struct Enemy : public Entity {
 
 struct Banana : public Enemy {
     Banana(Vec2 pos) :
-        Enemy(pos, V2(1, 1), ASSET_BANANA1, 0, 10),
+        Enemy(pos, V2(5, 5), 0, 10),
         velocity(V2(0, 0)),
-        orig_pos(pos) {}
+        orig_pos(pos) {
+            animation_delay = 0.5;
+            images.push_back(ASSET_BANANA1);
+            images.push_back(ASSET_BANANA2);
+            images.push_back(ASSET_BANANA3);
+            images.push_back(ASSET_BANANA2);
+    }
 
-    const f32 SPEED = 1.5;
-    const f32 SPEED_CHASING = 2;
-    const f32 CHASE_DIST = 8;
+    const f32 SPEED = 5;
+    const f32 SPEED_CHASING = 7;
+    const f32 CHASE_DIST = 30;
 
     void update(f32 delta) override {
         time += delta;
+        animate(time);
 
         if (pos.x <= WORLD_LEFT_EDGE) {
             velocity.x = SPEED;
