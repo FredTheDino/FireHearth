@@ -26,7 +26,7 @@ void draw_game_over() {
         Vec4 coords = TEXT_COORDINATES[i];
         Vec2 dim = V2(coords.z, -coords.w) * PIXEL_TO_WORLD;
         if (dim.y) {
-            Renderer::push_sprite(camera - position + V2(0, sin(time + i) * 2),
+            Renderer::push_sprite(-camera - position + V2(0, sin(time + i) * 2),
                                   dim, 0,
                                   ASSET_PARTICLE_SPRITESHEEP,
                                   V2(coords.x, coords.y),
