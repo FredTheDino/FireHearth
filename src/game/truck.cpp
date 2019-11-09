@@ -74,6 +74,11 @@ void Truck::update(f32 delta) {
             velocity_angle + 1.0f};
     }
     smoke_particles.spawn();
+
+    if (pressed(Player::P1, Name::BOOST)) {
+        body.velocity += normalize(body.velocity) * TRUCK_BOOST_INITIAL;
+    }
+
     if (down(Player::P1, Name::BOOST))
         boost(delta);
 
@@ -91,8 +96,11 @@ void Truck::update(f32 delta) {
     if (length_squared(body.velocity) > TRUCK_MAX_SPEED)
         body.velocity *= pow(0.2, delta);
 
-    if (pressed(Player::P1, Name::SHOOT))
-        create_bullet(body.position + forward * dimension.x * 0.5, forward);
+    if (down(Player::P1, Name::SHOOT) &&
+        Logic::now() >= last_shot + TRUCK_SHOOT_DELAY) {
+            create_bullet(body.position + forward * dimension.x * 0.5, forward);
+            last_shot = Logic::now();
+    }
 
     smoke_particles.update(delta);
     boost_particles.update(delta);
