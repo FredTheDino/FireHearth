@@ -67,8 +67,8 @@ struct Spawner {
 
     void update(f32 delta) {
         if (enemies->size() < 2) {
-            f32 x = random_real() < 0.5 ? WORLD_LEFT_EDGE : WORLD_RIGHT_EDGE;
-            f32 y = random_real(-5, 5);
+            f32 x = 2 * (random_real() < 0.5 ? WORLD_LEFT_EDGE : WORLD_RIGHT_EDGE);
+            f32 y = random_real(-20, 20);
             enemies->push_back(new Banana(V2(x, y)));
         }
     }
