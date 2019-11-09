@@ -26,6 +26,7 @@ f32 currentTrashLevel = -50;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + 20;
 
+#include "text.h"
 #include "highscore.h"
 #include "entity.h"
 #include "enemy.h"
@@ -193,7 +194,9 @@ void draw() {
         paralax(V2(-60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 
+
     if (game_over) {
+        draw_text("GAME OVER", V2(0, 0), 1.0, 0.5);
         draw_game_over();
     } else {
         truck.draw();
