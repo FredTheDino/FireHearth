@@ -58,12 +58,20 @@ void draw_entity(Entity* entity) {
 }
 
 void setup() {
-    add(K(w), Player::P1, Name::UP);
+    // Bind wasd
+    add(K(w), Player::P1, Name::BOOST);
     add(K(d), Player::P1, Name::UP);
-    add(K(s), Player::P1, Name::DOWN);
+    //add(K(s), Player::P1, Name::DOWN); Add brake?
     add(K(a), Player::P1, Name::DOWN);
-    add(K(SPACE), Player::P1, Name::BOOST);
-    add(K(m), Player::P1, Name::SHOOT);
+
+    // Bind arrow keys
+    add(K(UP), Player::P1, Name::BOOST);
+    add(K(RIGHT), Player::P1, Name::UP);
+    //add(K(s), Player::P1, Name::DOWN); Add brake?
+    add(K(LEFT), Player::P1, Name::DOWN);
+
+    // Shoot!
+    add(K(SPACE), Player::P1, Name::SHOOT);
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
