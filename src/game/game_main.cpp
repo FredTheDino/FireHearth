@@ -11,13 +11,14 @@ namespace Game {
 
 using namespace Input;
 Physics::ShapeID square;
-
+bool game_over = false;
 Vec2 get_truck_pos();
 
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
 #include "truck.cpp"
+#include "gameover.cpp"
 
 Truck truck;
 
@@ -90,6 +91,11 @@ Vec2 paralax(Vec2 position, f32 distance) {
 // Main logic
 void update(f32 delta) {
 
+    if (game_over) {
+        // Do game over stuff
+        return;
+    }
+
     // Update game elements
     truck.update(delta);
     update_bullets(delta);
@@ -108,10 +114,14 @@ void draw() {
     Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
             ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
-    truck.draw();
-    draw_bullets();
-    for (Enemy* enemy : enemies) {
-        draw_entity(enemy);
+    if (game_over) {
+        draw_game_over();
+    } else {
+        truck.draw();
+        draw_bullets();
+        for (Enemy* enemy : enemies) {
+            draw_entity(enemy);
+        }
     }
 
     // Draw trash mountain.
@@ -119,6 +129,7 @@ void draw() {
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
     Renderer::push_sprite(paralax(V2(-60, -43), TRASH_MOUNTAIN_DISTANCE),
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
+    draw_game_over();
 }
 
 }  // namespace Game
