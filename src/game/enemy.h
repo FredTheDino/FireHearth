@@ -97,10 +97,6 @@ struct TrashBag : public Enemy{
             images.push_back(ASSET_TRASH_WALK);
 	    rotation = sin(time*10) /5;
 		
-	    //animate this.
-	    //LOG("%f", time);
-	    //LOG("%f", buryTime);
-	    LOG("%f", (buryTime));
 	    if (buryTime >= 3){
 		goalTrashLevel++;
 		groundLevel++;

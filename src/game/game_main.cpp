@@ -64,6 +64,9 @@ void setup() {
     add(K(SPACE), Player::P1, Name::BOOST);
     add(K(m), Player::P1, Name::SHOOT);
 
+    Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
+		      ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
+
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
 
