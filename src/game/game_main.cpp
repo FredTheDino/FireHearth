@@ -1,8 +1,6 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 #include <vector>
-#include <string>
-#include <fstream>
 
 const u32 NO_ASSET = 1024;
 const f32 WORLD_LEFT_EDGE  = -80;
@@ -26,7 +24,6 @@ f32 currentTrashLevel = -50;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + 20;
 
-#include "highscore.h"
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
@@ -41,6 +38,13 @@ float TRASH_MOUNTAIN_DISTANCE = -0.5;
 
 float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
+
+std::string bitmapFontGuide = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+int index = 10;
+int space = 0;
+std::string name = aaa;
+int score = 0;
 
 Vec2 get_truck_pos() {
     return truck.body.position;
@@ -109,13 +113,24 @@ void update(f32 delta) {
 
     if (game_over) {
 		if (pressed(Player::P1, Name::BOOST)) {
-			//cycle letter u on.
+			index += 1;
+			index = index % 38;
 		}
 		if (pressed(Player::P1, Name::DOWN)) {
-			//cycle letter u on.
+			index -= 1;
+			index = index % 38;
 		}
 		if (pressed(Player::P1, Name::CONFIRM)) {
-			//cycle enrty space
+			index = 10;
+			if (space < 2) {
+				space += 1;
+				name[space] = bitmapFontGuide[index];
+			}
+			else {
+				name[space] = bitmapFontGuide[index];
+				write_highscore(read_highscores(), name, score);
+				//back to title screen
+			}
 		}
         if (down(Player::P1, Name::RESTART)) {
             game_over = false;
