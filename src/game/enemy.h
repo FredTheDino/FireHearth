@@ -193,6 +193,11 @@ std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
 
 void initalize_enemies() {
+    spawner.time = 0;
+    for (Enemy* enemy : enemies) { 
+        delete enemy;
+    }
+    enemies.clear();
     enemies.reserve(64);
 
     hit_particles = Renderer::create_particle_system(500, V2(0, 0));

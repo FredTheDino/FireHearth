@@ -4,7 +4,7 @@ Renderer::ParticleSystem cloud_particles_3;
 Renderer::ParticleSystem cloud_particles_4;
 Renderer::ParticleSystem cloud_particles_5;
 
-float CLOUD_SIZE = 4;
+f32 CLOUD_SIZE = 4;
 
 void setCloudSys(Renderer::ParticleSystem& sys) {
 	sys = Renderer::create_particle_system(20, V2(-100, 15));
@@ -21,31 +21,31 @@ void setCloudSys(Renderer::ParticleSystem& sys) {
 void createCloudSystems() {
 	setCloudSys(cloud_particles_1);
 	cloud_particles_1.add_sprite(ASSET_CLOUD_1, 0, 0, 21, 8);
-	cloud_particles_1.spawn_size = {2.1 * CLOUD_SIZE, 2.1 * CLOUD_SIZE};
+	cloud_particles_1.spawn_size = {2.1f * CLOUD_SIZE, 2.1f * CLOUD_SIZE};
 	cloud_particles_1.width = {2.1, 2.1};
 	cloud_particles_1.height = {0.8, 0.8};
 
 	setCloudSys(cloud_particles_2);
 	cloud_particles_2.add_sprite(ASSET_CLOUD_2, 0, 0, 27, 9);
-	cloud_particles_2.spawn_size = {2.7 * CLOUD_SIZE, 2.7 * CLOUD_SIZE};
+	cloud_particles_2.spawn_size = {2.7f * CLOUD_SIZE, 2.7f * CLOUD_SIZE};
 	cloud_particles_2.width = {2.7, 2.7};
 	cloud_particles_2.height = {0.9, 0.9};
 
 	setCloudSys(cloud_particles_3);
 	cloud_particles_3.add_sprite(ASSET_CLOUD_3, 0, 0, 20, 9);
-	cloud_particles_3.spawn_size = {2.0 * CLOUD_SIZE, 2.0 * CLOUD_SIZE};
+	cloud_particles_3.spawn_size = {2.0f * CLOUD_SIZE, 2.0f * CLOUD_SIZE};
 	cloud_particles_3.width = {2.0, 2.0};
 	cloud_particles_3.height = {0.9, 0.9};
 
 	setCloudSys(cloud_particles_4);
 	cloud_particles_4.add_sprite(ASSET_CLOUD_4, 0, 0, 11, 5);
-	cloud_particles_4.spawn_size = {1.1 * CLOUD_SIZE, 1.1 * CLOUD_SIZE};
+	cloud_particles_4.spawn_size = {1.1f * CLOUD_SIZE, 1.1f * CLOUD_SIZE};
 	cloud_particles_4.width = {1.1, 1.1};
 	cloud_particles_4.height = {0.5, 0.5};
 
 	setCloudSys(cloud_particles_5);
 	cloud_particles_5.add_sprite(ASSET_CLOUD_5, 0, 0, 19, 6);
-	cloud_particles_5.spawn_size = {1.9 * CLOUD_SIZE, 1.9 * CLOUD_SIZE};
+	cloud_particles_5.spawn_size = {1.9f * CLOUD_SIZE, 1.9f * CLOUD_SIZE};
 	cloud_particles_5.width = {1.9, 1.9};
 	cloud_particles_5.height = {0.6, 0.6};
 }
