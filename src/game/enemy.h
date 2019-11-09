@@ -64,14 +64,14 @@ struct Banana : public Enemy {
 
 struct TrashBag : public Enemy{
     TrashBag(Vec2 pos) :
-	Enemy(pos, V2(10,10), 0, 1),
+	Enemy(pos, V2(5,5), 0, 1),
 	velocity(V2(0,0)),
 	orig_pos(pos) {
 	    animation_delay = 0.5;
 	    images.push_back(ASSET_TRASH_SLEEP);
 	}
 
-    const f32 SPEED = 3;
+    const f32 SPEED = 6;
     f32 buryTime = 0;
     bool onGround = false;
 
@@ -102,7 +102,7 @@ struct TrashBag : public Enemy{
 	    //LOG("%f", buryTime);
 	    LOG("%f", (buryTime));
 	    if (buryTime >= 3){
-		currentTrashLevel++;
+		goalTrashLevel++;
 		groundLevel++;
 		hp = 0;
 	    }
@@ -126,7 +126,7 @@ struct Spawner {
             enemies->push_back(new Banana(V2(x, y)));
         }
 	if (enemies->size() < 4){
-	    f32 x = random_real() < 0.5 ? WORLD_LEFT_EDGE : WORLD_RIGHT_EDGE;
+	    f32 x = random_real(WORLD_LEFT_EDGE,WORLD_RIGHT_EDGE);
             f32 y = WORLD_TOP_EDGE;
             enemies->push_back(new TrashBag(V2(x, y)));
 	}
