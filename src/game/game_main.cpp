@@ -43,7 +43,7 @@ std::string bitmapFontGuide = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 int index = 10;
 int space = 0;
-std::string name = aaa;
+std::string name = "AAA";
 int score = 0;
 
 Vec2 get_truck_pos() {
@@ -114,11 +114,11 @@ void update(f32 delta) {
     if (game_over) {
 		if (pressed(Player::P1, Name::BOOST)) {
 			index += 1;
-			index = index % 38;
+			index = index % 36;
 		}
 		if (pressed(Player::P1, Name::DOWN)) {
 			index -= 1;
-			index = index % 38;
+			index = index % 36;
 		}
 		if (pressed(Player::P1, Name::CONFIRM)) {
 			index = 10;
