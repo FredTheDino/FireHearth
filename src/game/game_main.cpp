@@ -114,11 +114,13 @@ Vec2 paralax(Vec2 position, f32 distance) {
 
 // Main logic
 void update(f32 delta) {
+    // TODO(ed): Split this functin into smaller functions.
+    Renderer::global_camera.shake = V2(0, 0);
 
 	if (title_screen) {
-		if (pressed(Player::P1, Name::CONFIRM)) {
+		if (pressed(Player::P1, Name::CONFIRM))
 			title_screen = false;
-		}
+        return;
 	}
 
     if (game_over) {
@@ -186,8 +188,6 @@ void update(f32 delta) {
 
     if (down(Player::P1, Name::BOOST)) {
         Renderer::global_camera.shake = random_unit_vec2() * 0.001;
-    } else {
-        Renderer::global_camera.shake = V2(0, 0);
     }
 
     camera_follow(truck.body.position, delta);
@@ -203,6 +203,7 @@ void update(f32 delta) {
 
 // Main draw
 void draw() {
+    Renderer::global_camera.shake = V2(0, 0);
     Renderer::push_sprite(paralax(V2(0, 0), 1.0), V2(120, -67), 0,
                           ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
     drawClouds();
@@ -225,6 +226,27 @@ void draw() {
                                 V2(dim.x / 2, 0.0), 
                   1.0, sin(Logic::now() / 10) * 0.5);
         // draw_game_over();
+    } else if (title_screen) {
+        Vec2 dim;
+        f32 scale;
+
+        scale = 1.0;
+        dim = messure_text("FLIGHT", scale);
+        draw_text("FLIGHT", -Renderer::global_camera.position - V2(dim.x / 2, -5.0), scale, 0.02);
+
+        scale = 0.5;
+        dim = messure_text("OF THE", scale);
+        draw_text("OF THE", -Renderer::global_camera.position - V2(dim.x / 2, 0.0), scale, 0.02);
+        
+        scale = 1.0;
+        dim = messure_text("TRUCK", scale);
+        draw_text("TRUCK", -Renderer::global_camera.position - V2(dim.x / 2, 5.0), scale, 0.40, 2.5);
+
+        if (MOD(Logic::now(), 2.0) > 1.0) {
+            scale = 0.5;
+            dim = messure_text("PRESS ENTER TO START", scale);
+            draw_text("PRESS ENTER TO START", -Renderer::global_camera.position - V2(dim.x / 2, 13.0), scale, 0.02);
+        }
     } else {
         truck.draw();
         draw_bullets();
