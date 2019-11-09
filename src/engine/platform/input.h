@@ -81,6 +81,7 @@ enum class Name {
     SHOOT,
     BOOST,
     RESTART,
+    CONFIRM,
 
     QUIT,
 
