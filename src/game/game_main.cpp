@@ -25,7 +25,7 @@ float MAX_TRASH_LEVEL = -15;
 float MIN_TRASH_LEVEL = -43;
 
 float CASTLE_DISTANCE = 5;
-float TRASH_MOUNTAIN_DISTANCE = 0.5;
+float TRASH_MOUNTAIN_DISTANCE = -0.5;
 
 float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
@@ -77,6 +77,16 @@ void setup() {
     Renderer::global_camera.zoom = 3.335 / 200.0;
 }
 
+void camera_follow(Vec2 target, f32 delta) {
+    target.x = CLAMP(CAMERA_MIN, CAMERA_MAX, -target.x);
+    Vec2 curr = Renderer::global_camera.position;
+    Renderer::global_camera.position.x = LERP(curr.x, 0.01, target.x);
+}
+
+Vec2 paralax(Vec2 position, f32 distance) {
+    return position - Renderer::global_camera.position / distance;
+}
+
 // Main logic
 void update(f32 delta) {
 
@@ -88,22 +98,14 @@ void update(f32 delta) {
         enemy->update(delta);
     }
 
-    if (-truck.body.position.x > CAMERA_MAX) {
-        Renderer::global_camera.position.x = CAMERA_MAX;
-    }
-    else if (-truck.body.position.x < CAMERA_MIN) {
-        Renderer::global_camera.position.x = CAMERA_MIN;
-    } else {
-        Renderer::global_camera.position.x = LERP(Renderer::global_camera.position.x, 0.5, -truck.body.position.x);
-    }
+    camera_follow(truck.body.position, delta);
 }
 
 // Main draw
 void draw() {
-    Renderer::push_sprite(-Renderer::global_camera.position, V2(120, -67), 0,
+    Renderer::push_sprite(paralax(V2(0, 0), 1.0), V2(120, -67), 0,
             ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
-    Renderer::push_sprite(V2(-Renderer::global_camera.position.x /
-                             CASTLE_DISTANCE, -0.5), V2(43, -66), 0,
+    Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
             ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
     truck.draw();
@@ -113,11 +115,9 @@ void draw() {
     }
 
     // Draw trash mountain.
-    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
-                              TRASH_MOUNTAIN_DISTANCE) + 60, -43),
+    Renderer::push_sprite(paralax(V2( 60, -43), TRASH_MOUNTAIN_DISTANCE),
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
-    Renderer::push_sprite(V2((Renderer::global_camera.position.x /
-                              TRASH_MOUNTAIN_DISTANCE) - 60, -43),
+    Renderer::push_sprite(paralax(V2(-60, -43), TRASH_MOUNTAIN_DISTANCE),
             V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 }
 
