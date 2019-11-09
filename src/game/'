@@ -23,8 +23,8 @@ float MIN_TRASH_LEVEL = -43;
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = 0.5;
 
-float CAMERA_MAX = 20;
-float CAMERA_MIN = -20;
+float CAMERA_MAX = 60;
+float CAMERA_MIN = -60;
 
 std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
@@ -87,10 +87,10 @@ void update(f32 delta) {
     for (Enemy* enemy : enemies) {
         enemy->update(delta);
     }
-	if (-truck.body.position.x > CAMERA_MAX) {
+	if (truck.body.position.x > CAMERA_MAX) {
 		Renderer::global_camera.position.x = CAMERA_MAX;
 	}
-	else if (-truck.body.position.x < CAMERA_MIN) {
+	else if (truck.body.position.x < CAMERA_MIN) {
 		Renderer::global_camera.position.x = CAMERA_MIN;
 	} else {
 		Renderer::global_camera.position.x = -truck.body.position.x;
