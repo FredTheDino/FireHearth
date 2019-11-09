@@ -134,7 +134,7 @@ void update(f32 delta) {
 				//back to title screen
 			}
 		}
-        if (down(Player::P1, Name::RESTART)) {
+        if (pressed(Player::P1, Name::RESTART)) {
             game_over = false;
             initalize_enemies();
             truck = create_truck();
@@ -204,10 +204,10 @@ void draw() {
 
     // Draw trash mountain.
     Renderer::push_sprite(
-        paralax(V2(60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+        V2(60, currentTrashLevel),
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
     Renderer::push_sprite(
-        paralax(V2(-60, currentTrashLevel), TRASH_MOUNTAIN_DISTANCE),
+        V2(-60, currentTrashLevel),
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 
 
