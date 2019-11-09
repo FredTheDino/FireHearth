@@ -1,9 +1,13 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
-#define NO_ASSET 1024
-#define WORLD_LEFT_EDGE -20
-#define WORLD_RIGHT_EDGE 20
-#define WORLD_TOP_EDGE 10
+#include <vector>
+
+const u32 NO_ASSET = 1024;
+const f32 WORLD_LEFT_EDGE  = -20;
+const f32 WORLD_RIGHT_EDGE =  20;
+const f32 WORLD_TOP_EDGE = 10;
+const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
+
 namespace Game {
 
 using namespace Input;
@@ -11,17 +15,17 @@ Physics::ShapeID square;
 
 Vec2 get_truck_pos();
 
-
 float MAX_TRASH_LEVEL = -15;
 float MIN_TRASH_LEVEL = -43;
     
 f32 currentTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + 11;
     
-#include <vector>
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
+#include "truck.cpp"
+
 Truck truck;
 
 
@@ -33,7 +37,6 @@ float CAMERA_MIN = -20;
 
 std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
-
 
 Vec2 get_truck_pos() {
     return truck.body.position;
@@ -86,8 +89,17 @@ void update(f32 delta) {
     truck.update(delta);
     update_bullets(delta);
     spawner.update(delta);
-    for (Enemy* enemy : enemies) {
-        enemy->update(delta);
+    update_enemies(delta);
+
+    // Check for bullet collisions
+    for (Bullet& bullet : bullets) {
+        for (Enemy* enemy : enemies) {
+            Physics::Body enemy_body = enemy->get_body();
+            if (check_overlap(&bullet.body, &enemy_body)) {
+                bullet.hit_enemy = true;
+                enemy->hp -= 1;
+            }
+        }
     }
 
     if (-truck.body.position.x > CAMERA_MAX) {
@@ -117,6 +129,8 @@ void draw() {
     draw_bullets();
     for (Enemy* enemy : enemies) {
         draw_entity(enemy);
+        Physics::Body body = enemy->get_body();
+        Physics::debug_draw_body(&body);
     }
 
     // Draw trash mountain.

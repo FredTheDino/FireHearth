@@ -5,6 +5,8 @@ struct Enemy : public Entity {
         time(0),
         animation_delay(1) {}
 
+    virtual ~Enemy() {}
+
     u32 hp;
     f32 time;
     f32 animation_delay;
@@ -122,7 +124,7 @@ struct Spawner {
     void update(f32 delta) {
         if (enemies->size() < 2) {
             f32 x = random_real() < 0.5 ? WORLD_LEFT_EDGE : WORLD_RIGHT_EDGE;
-            f32 y = random_real(-5, 5);
+            f32 y = random_real(-20, 20);
             enemies->push_back(new Banana(V2(x, y)));
         }
 	if (enemies->size() < 4){
@@ -135,3 +137,16 @@ struct Spawner {
     std::vector<Enemy*>* enemies;
     u32 threat;
 };
+
+std::vector<Enemy*> enemies;
+Spawner spawner(&enemies);
+
+void update_enemies(f32 delta) {
+    for (s32 i = enemies.size() - 1; i >= 0; i--) {
+        enemies[i]->update(delta);
+        if (enemies[i]->is_dead()) {
+            delete enemies[i];
+            enemies.erase(enemies.begin() + i);
+        }
+    }
+}
