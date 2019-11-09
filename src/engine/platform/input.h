@@ -80,6 +80,7 @@ enum class Name {
     DOWN,
     SHOOT,
     BOOST,
+    RESTART,
 
     QUIT,
 
