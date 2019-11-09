@@ -8,7 +8,7 @@ struct Bullet {
     f32 spawn_time;
     f32 angle;
     f32 speed = 20.0;
-    Vec2 dimension = V2(6, 2) / 10.0;
+    Vec2 dimension = V2(6, 2) / 3.0;
 
     void update(f32 delta) {
         Physics::integrate(&body, delta);
@@ -17,7 +17,7 @@ struct Bullet {
     void draw() {
         Renderer::push_sprite(body.position, dimension, angle,
                               ASSET_PARTICLE_SPRITESHEEP,
-                              V2(bullet_sprite.x, bullet_sprite.y),
+                              V2(-bullet_sprite.x, bullet_sprite.y),
                               V2(bullet_sprite.z + 1, bullet_sprite.w + 1));
         // Physics::debug_draw_body(&body);
     }
@@ -63,7 +63,7 @@ struct Truck {
     Physics::Body body;
     Renderer::ParticleSystem boost_particles;
     Renderer::ParticleSystem smoke_particles;
-    Vec2 dimension = V2(15, 9) / 10.0;
+    Vec2 dimension = V2(15, 9) / 3.0;
     Vec2 forward = V2(1, 0);
     f32 max_speed = 225.0;
     f32 boost_strength = 8.0;
@@ -126,8 +126,6 @@ struct Truck {
                               ASSET_PARTICLE_SPRITESHEEP,
                               V2(truck_sprite.x, truck_sprite.y),
                               V2(truck_sprite.z, truck_sprite.w));
-        Renderer::push_line(body.position, body.position + forward,
-                            V4(1, 0, 1, 1));
         // Physics::debug_draw_body(&body);
     }
 };
@@ -142,7 +140,7 @@ Truck create_truck() {
     boost_particles.velocity = {-6.0, -8.0};
     boost_particles.alive_time = {0.5, 1};
     boost_particles.rotation = {0, 0};
-    boost_particles.spawn_size = {0.2, 0.3};
+    boost_particles.spawn_size = {0.5, 0.6};
     boost_particles.die_size = {0.0, 0.0};
 
     auto smoke_particles = Renderer::create_particle_system(250, V2(0, 0));
@@ -153,7 +151,7 @@ Truck create_truck() {
     smoke_particles.velocity = {-1.0, -2.0};
     smoke_particles.alive_time = {3, 4};
     smoke_particles.rotation = {0, 0};
-    smoke_particles.spawn_size = {0.2, 0.4};
+    smoke_particles.spawn_size = {0.6, 1.0};
     smoke_particles.die_size = {0.0, 0.0};
 
     Truck truck = { Physics::create_body(square, 1.0, 0xFF, 0.0, 0.2),
