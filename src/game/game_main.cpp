@@ -74,8 +74,8 @@ void setup() {
     // Restart
     add(K(r), Player::P1, Name::RESTART);
 
-	//Confirm
-	add(K(RETURN), Player::P1, Name::CONFIRM); 
+    //Confirm
+    add(K(RETURN), Player::P1, Name::CONFIRM);
 
     Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
               ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
@@ -101,6 +101,12 @@ void setup() {
     Renderer::global_camera.zoom = 3.335 / 200.0;
 
     Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
+
+    // Prerender some clouds
+    for (u32 i = 0; i < 100; i++) {
+        spawnCloud();
+        updateClouds(2);
+    }
 }
 
 void camera_follow(Vec2 target, f32 delta) {
@@ -116,33 +122,33 @@ Vec2 paralax(Vec2 position, f32 distance) {
 // Main logic
 void update(f32 delta) {
 
-	if (title_screen) {
-		if (pressed(Player::P1, Name::CONFIRM)) {
-			title_screen = false;
-		}
-	}
+    if (title_screen) {
+        if (pressed(Player::P1, Name::CONFIRM)) {
+            title_screen = false;
+        }
+    }
 
     if (game_over) {
-		if (pressed(Player::P1, Name::BOOST)) {
-			index += 1;
-			index = index % 36;
-		}
-		if (pressed(Player::P1, Name::DOWN)) {
-			index -= 1;
-			index = index % 36;
-		}
-		if (pressed(Player::P1, Name::CONFIRM)) {
-			index = 10;
-			if (space < 2) {
-				space += 1;
-				name[space] = bitmapFontGuide[index];
-			}
-			else {
-				name[space] = bitmapFontGuide[index];
-				// write_highscore(read_highscores(), name, score);
-				title_screen = true;
-			}
-		}
+        if (pressed(Player::P1, Name::BOOST)) {
+            index += 1;
+            index = index % 36;
+        }
+        if (pressed(Player::P1, Name::DOWN)) {
+            index -= 1;
+            index = index % 36;
+        }
+        if (pressed(Player::P1, Name::CONFIRM)) {
+            index = 10;
+            if (space < 2) {
+                space += 1;
+                name[space] = bitmapFontGuide[index];
+            }
+            else {
+                name[space] = bitmapFontGuide[index];
+                // write_highscore(read_highscores(), name, score);
+                title_screen = true;
+            }
+        }
         if (pressed(Player::P1, Name::RESTART)) {
             game_over = false;
             initalize_enemies();
@@ -159,7 +165,6 @@ void update(f32 delta) {
     update_bullets(delta);
     spawner.update(delta);
     update_enemies(delta);
-
 
     for (Enemy* enemy : enemies) {
         Physics::Body enemy_body = enemy->get_body();
@@ -222,8 +227,7 @@ void draw() {
 
     if (game_over) {
         Vec2 dim = messure_text("GAME OVER", 1.0);
-        draw_text("GAME OVER", -Renderer::global_camera.position - 
-                                V2(dim.x / 2, 0.0), 
+        draw_text("GAME OVER", -Renderer::global_camera.position - V2(dim.x / 2, 0.0),
                   1.0, sin(Logic::now() / 10) * 0.5);
         // draw_game_over();
     } else {
