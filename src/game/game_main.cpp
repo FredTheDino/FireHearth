@@ -1,15 +1,11 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 #define NO_ASSET 1024
-#define WORLD_LEFT_EDGE -20
-#define WORLD_RIGHT_EDGE 20
 
 namespace Game {
 
 using namespace Input;
 Physics::ShapeID square;
-
-Vec2 get_truck_pos();
 
 #include <vector>
 #include "entity.h"
@@ -23,18 +19,16 @@ float MIN_TRASH_LEVEL = -43;
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = 0.5;
 
-std::vector<Enemy*> enemies;
-Spawner spawner(&enemies);
+float CAMERA_MAX = 60;
+float CAMERA_MIN = -60;
 
-Vec2 get_truck_pos() {
-    return truck.body.position;
-}
+std::vector<Enemy*> enemies;
 
 void draw_entity(Entity* entity) {
     if (entity->image != NO_ASSET) {
         Image* img = Asset::fetch_image(entity->image);
         Renderer::push_sprite(entity->pos,
-                -entity->dim,
+                entity->dim,
                 entity->rotation,
                 entity->image,
                 V2(0,0),
@@ -68,16 +62,27 @@ void setup() {
     truck = create_truck();
 
     Renderer::global_camera.zoom = 3.335 / 200.0;
+
+    Enemy* e = new Banana(V2(0, 0));
+    enemies.push_back(e);
+    e = new Banana(V2(5, 5));
+    enemies.push_back(e);
 }
 
 // Main logic
 void update(f32 delta) {
     truck.update(delta);
-    spawner.update(delta);
     for (Enemy* enemy : enemies) {
         enemy->update(delta);
     }
-	Renderer::global_camera.position.x = -truck.body.position.x;
+	if (Renderer::global_camera.position.x > CAMERA_MAX) {
+		Renderer::global_camera.position.x = CAMERA_MAX;
+	}
+	else if (Renderer::global_camera.position.x < CAMERA_MIN) {
+		Renderer::global_camera.position.x = CAMERA_MIN;
+	} else {
+		Renderer::global_camera.position.x = -truck.body.position.x;
+	}
 }
 
 // Main draw
