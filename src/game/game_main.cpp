@@ -37,7 +37,7 @@ void setup() {
     add(K(SPACE), Player::P1, Name::BOOST);
     add(K(m), Player::P1, Name::SHOOT);
 
-    Renderer::set_window_size(800, 600);
+    Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
 
     {
@@ -52,7 +52,7 @@ void setup() {
 
     truck = create_truck();
 
-    Renderer::global_camera.zoom = 1.0 / 20.0;
+    Renderer::global_camera.zoom = 3.335 / 200.0;
 
     Enemy* e = new Banana(V2(0, 0));
     enemies.push_back(e);
@@ -70,6 +70,10 @@ void update(f32 delta) {
 
 // Main draw
 void draw() {
+	Renderer::push_sprite(V2(0, 0), V2(120, -67), 0, ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
+	Renderer::push_sprite(V2(0, 0), V2(43, -66), 0, ASSET_CASTLE, V2(0, 0), V2(43, 66));
+
+
     truck.draw();
     for (Enemy* enemy : enemies) {
         draw_entity(enemy);
