@@ -27,6 +27,7 @@ f32 groundLevel = currentTrashLevel + 20;
 #include "enemy.h"
 #include "truck.h"
 #include "truck.cpp"
+#include "clouds.h"
 #include "gameover.cpp"
 
 Truck truck;
@@ -40,20 +41,6 @@ float CAMERA_MIN = -20;
 
 Vec2 get_truck_pos() {
     return truck.body.position;
-}
-
-void draw_entity(Entity* entity) {
-    if (entity->image != NO_ASSET) {
-        Image* img = Asset::fetch_image(entity->image);
-        Renderer::push_sprite(entity->pos,
-                -entity->dim,
-                entity->rotation,
-                entity->image,
-                V2(0,0),
-                V2(img->width, img->height));
-    } else {
-        Renderer::push_rectangle(entity->pos, entity->dim);
-    }
 }
 
 void setup() {
@@ -82,7 +69,12 @@ void setup() {
 
     truck = create_truck();
 
+    initalize_enemies();
+	createCloudSystems();
+
     Renderer::global_camera.zoom = 3.335 / 200.0;
+
+	Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
 }
 
 void camera_follow(Vec2 target, f32 delta) {
@@ -124,6 +116,7 @@ void update(f32 delta) {
             if (check_overlap(&bullet.body, &enemy_body)) {
                 bullet.hit_enemy = true;
                 enemy->hp -= 1;
+                emit_hit_particles(bullet.body.position);
             }
 	    
 	    if (Physics::check_overlap(&enemy_body, &truck.body)){
@@ -140,6 +133,9 @@ void update(f32 delta) {
     }
 
     camera_follow(truck.body.position, delta);
+
+	updateClouds(delta);
+
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
         game_over = true;
     } else if (currentTrashLevel < goalTrashLevel){
@@ -151,6 +147,8 @@ void update(f32 delta) {
 void draw() {
     Renderer::push_sprite(paralax(V2(0, 0), 1.0), V2(120, -67), 0,
                           ASSET_BACKGROUND, V2(0, 0), V2(120, 67));
+	drawClouds();
+
     Renderer::push_sprite(paralax(V2(0, -0.5), CASTLE_DISTANCE), V2(43, -66), 0,
                           ASSET_CASTLE, V2(0, 0), V2(43, 66));
 
@@ -167,13 +165,8 @@ void draw() {
     } else {
         truck.draw();
         draw_bullets();
-        for (Enemy* enemy : enemies) {
-            draw_entity(enemy);
-            Physics::Body body = enemy->get_body();
-            Physics::debug_draw_body(&body);
-        }
+        draw_enemies();
     }
-
 }
 
 }  // namespace Game

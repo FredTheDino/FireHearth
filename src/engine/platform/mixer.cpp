@@ -93,13 +93,12 @@ AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
 }
 
 void stop_sound(AudioID id) {
-    LOG("Called for audio: %d", id.slot);
     ASSERT(id.slot < NUM_SOURCES, "Invalid index in ID");
     lock_audio();
     SoundSource *source = audio_struct.sources + id.slot;
     CHECK(source->gen == id.gen, "Invalid AudioID, the handle is outdated");
     if (source->gen == id.gen) {
-        audio_struct.free_sources[++audio_struct.num_free_sources] = id.slot;
+        audio_struct.free_sources[audio_struct.num_free_sources++] = id.slot;
         source->gain = 0.0;
     } else {
         ERR("Invalid removal of AudioID that does not exist");
@@ -125,6 +124,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
 
     f32 left_fade[NUM_SOURCES];
     f32 right_fade[NUM_SOURCES];
+
     for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
         SoundSource *source = data->sources + source_id;
         if (source->positional && source->gain != 0) {
@@ -174,7 +174,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
                     index = 0;
                     source->sample = 0;
                 } else {
-                    data->free_sources[++data->num_free_sources] = source_id;
+                    data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
                     continue;
                 }

@@ -103,9 +103,9 @@ void Truck::update(f32 delta) {
     if (down(Player::P1, Name::SHOOT) &&
         Logic::now() >= last_shot + TRUCK_SHOOT_DELAY) {
             create_bullet(body.position + forward * dimension.x * 0.5, forward);
-            last_shot = Logic::now();
-	    Mixer::play_sound(ASSET_NOISE, 1.0, 1.0 , Mixer::AUDIO_DEFAULT_VARIANCE,
-			      Mixer::AUDIO_DEFAULT_VARIANCE, false);
+            last_shot = Logic::now(); 
+	    Mixer::play_sound(ASSET_NOISE, 1.0, 0.5);
+
     }
 
     smoke_particles.update(delta);
