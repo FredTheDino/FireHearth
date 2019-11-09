@@ -70,7 +70,7 @@ void setup() {
     add(K(r), Player::P1, Name::RESTART);
 
 	//Confirm
-	add(K(ENTER), Player::P1, Name:: CONFIRM); 
+	add(K(RETUR), Player::P1, Name:: CONFIRM); 
 
     Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
               ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
