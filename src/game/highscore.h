@@ -27,7 +27,7 @@ void write_highscores(std::vector<HighScore>& scores, std::string name, int scor
 
     s32 index = scores.size();
     for (s32 i = 0; i < scores.size(); i++) {
-        if (scores[i].score <= new_score.score) {
+        if (scores[i].score < new_score.score) {
             index = i;
             break;
         }

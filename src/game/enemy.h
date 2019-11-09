@@ -335,7 +335,7 @@ void draw_enemies() {
     for (Enemy* enemy : enemies) {
         draw_entity(enemy);
         Physics::Body body = enemy->get_body();
-        Physics::debug_draw_body(&body);
+        //Physics::debug_draw_body(&body);
     }
 }
 

@@ -1,6 +1,7 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 #include <vector>
+#include <fstream>
 
 const u32 NO_ASSET = 1024;
 const f32 WORLD_LEFT_EDGE  = -80;
@@ -15,6 +16,7 @@ using namespace Input;
 Physics::ShapeID square;
 bool game_over = false;
 Vec2 get_truck_pos();
+Vec2 paralax(Vec2 position, f32 distance);
 
 const float MAX_TRASH_LEVEL = -15;
 const float MIN_TRASH_LEVEL = -43;
@@ -25,7 +27,7 @@ f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + 20;
 
 #include "text.h"
-// #include "highscore.h"
+#include "highscore.h"
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
@@ -41,20 +43,21 @@ float TRASH_MOUNTAIN_DISTANCE = -0.5;
 float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
 
-std::string bitmapFontGuide = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const std::string VALID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-int index = 10;
-int space = 0;
-std::string name = "AAA";
 int score = 0;
 
+// TODO(ed): An enum for the game state
 bool title_screen = true;
+std::vector<HighScore> highscores;
 
 Vec2 get_truck_pos() {
     return truck.body.position;
 }
 
 void setup() {
+    highscores = read_highscores();
+
     // Bind wasd
     add(K(w), Player::P1, Name::BOOST);
     add(K(d), Player::P1, Name::UP);
@@ -73,8 +76,8 @@ void setup() {
     // Restart
     add(K(r), Player::P1, Name::RESTART);
 
-	//Confirm
-	add(K(RETURN), Player::P1, Name::CONFIRM); 
+    //Confirm
+    add(K(RETURN), Player::P1, Name::CONFIRM);
 
     Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
               ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
@@ -100,6 +103,12 @@ void setup() {
     Renderer::global_camera.zoom = 3.335 / 200.0;
 
     Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
+
+    // Prerender some clouds
+    for (u32 i = 0; i < 100; i++) {
+        spawnCloud();
+        updateClouds(2);
+    }
 }
 
 void camera_follow(Vec2 target, f32 delta) {
@@ -112,55 +121,57 @@ Vec2 paralax(Vec2 position, f32 distance) {
     return position - Renderer::global_camera.position / distance;
 }
 
-// Main logic
-void update(f32 delta) {
-    // TODO(ed): Split this functin into smaller functions.
-    Renderer::global_camera.shake = V2(0, 0);
+void update_title_screen() {
+    if (pressed(Player::P1, Name::CONFIRM))
+        title_screen = false;
+}
 
-	if (title_screen) {
-		if (pressed(Player::P1, Name::CONFIRM))
-			title_screen = false;
-        return;
-	}
-
-    if (game_over) {
-		if (pressed(Player::P1, Name::BOOST)) {
-			index += 1;
-			index = index % 36;
-		}
-		if (pressed(Player::P1, Name::DOWN)) {
-			index -= 1;
-			index = index % 36;
-		}
-		if (pressed(Player::P1, Name::CONFIRM)) {
-			index = 10;
-			if (space < 2) {
-				space += 1;
-				name[space] = bitmapFontGuide[index];
-			}
-			else {
-				name[space] = bitmapFontGuide[index];
-				// write_highscore(read_highscores(), name, score);
-				title_screen = true;
-			}
-		}
-        if (pressed(Player::P1, Name::RESTART)) {
-            game_over = false;
-            initalize_enemies();
-            truck = create_truck();
-            currentTrashLevel = -50;
-            goalTrashLevel = MIN_TRASH_LEVEL;
-            groundLevel = currentTrashLevel + 20;
-        }
-        return;
+int highscore_index = 10;
+int highscore_space = 0;
+std::string highscore_name = "AAA";
+void update_game_over_screen() {
+    if (pressed(Player::P1, Name::BOOST)) {
+        highscore_index += 1;
+        highscore_index = highscore_index % VALID_CHARS.size();
+        highscore_name[highscore_space] = VALID_CHARS[highscore_index];
+    }
+    
+    if (pressed(Player::P1, Name::DOWN)) {
+        highscore_index -= 1;
+        highscore_index = highscore_index % VALID_CHARS.size();
+        highscore_name[highscore_space] = VALID_CHARS[highscore_index];
     }
 
+    if (pressed(Player::P1, Name::CONFIRM)) {
+        highscore_index = 10;
+        highscore_space++;
+        if (highscore_space == 3) {
+            highscore_space = 0;
+            highscore_name[highscore_space] = VALID_CHARS[highscore_index];
+            write_highscores(highscores, highscore_name, score);
+            highscores = read_highscores();
+            highscore_name = "AAA";
+            game_over = false;
+            title_screen = true;
+        }
+    }
+
+    if (pressed(Player::P1, Name::RESTART)) {
+        game_over = false;
+        initalize_enemies();
+        truck = create_truck();
+        currentTrashLevel = -50;
+        goalTrashLevel = MIN_TRASH_LEVEL;
+        groundLevel = currentTrashLevel + 20;
+    }
+}
+
+void update_game(f32 delta) {
     // Update game elements
     truck.update(delta);
     update_bullets(delta);
     spawner.update(delta);
     update_enemies(delta);
-
 
     for (Enemy* enemy : enemies) {
         Physics::Body enemy_body = enemy->get_body();
@@ -192,13 +203,24 @@ void update(f32 delta) {
 
     camera_follow(truck.body.position, delta);
 
-    updateClouds(delta);
-
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
         game_over = true;
     } else if (currentTrashLevel < goalTrashLevel){
         currentTrashLevel += TRASH_VELOCITY;
     }
+}
+
+// Main logic
+void update(f32 delta) {
+    Renderer::global_camera.shake = V2(0, 0);
+    updateClouds(delta);
+
+	if (title_screen)
+        update_title_screen();
+    else if (game_over)
+        update_game_over_screen();
+    else
+        update_game(delta);
 }
 
 // Main draw
@@ -220,33 +242,69 @@ void draw() {
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 
 
+    Vec2 cam = -Renderer::global_camera.position;
     if (game_over) {
-        Vec2 dim = messure_text("GAME OVER", 1.0);
-        draw_text("GAME OVER", -Renderer::global_camera.position - 
-                                V2(dim.x / 2, 0.0), 
-                  1.0, sin(Logic::now() / 10) * 0.5);
-        // draw_game_over();
+        Vec2 dim;
+        f32 size = 1.0;
+        dim = messure_text("GAME OVER", size);
+        draw_text("GAME OVER", cam - V2(dim.x / 2, -6.0),
+                  size, sin(Logic::now() / 10) * 0.5);
+
+        char *score_text = Util::format("SCORE: %d", score);
+        size = 0.75;
+        dim = messure_text(score_text, size);
+        draw_text(score_text, cam - V2(dim.x / 2, 0.0),
+                size, sin(Logic::now() / 10) * 0.5);
+
+        char output[] = " \0";
+        f32 spacing = 12 * PIXEL_TO_WORLD;
+        f32 left = -spacing * 1.5;
+        for (u32 i = 0; i < highscore_name.size(); i++) {
+            Vec2 position = cam + V2(left + i * spacing, -5.0);
+            if (i == highscore_space) {
+                output[0] = '<';
+                draw_text(output, position + V2(0,  2.0), 0.5);
+                output[0] = '>';
+                draw_text(output, position + V2(0, -2.0), 0.5);
+            }
+
+            if (MOD(Logic::now(), 0.8) > 0.4 || i != highscore_space) {
+                output[0] = highscore_name[i];
+                draw_text(output, position, 0.5);
+            }
+        }
+
+
     } else if (title_screen) {
         Vec2 dim;
         f32 scale;
 
         scale = 1.0;
         dim = messure_text("FLIGHT", scale);
-        draw_text("FLIGHT", -Renderer::global_camera.position - V2(dim.x / 2, -5.0), scale, 0.02);
+        draw_text("FLIGHT", cam - V2(dim.x / 2, -5.0), scale, 0.02);
 
         scale = 0.5;
         dim = messure_text("OF THE", scale);
-        draw_text("OF THE", -Renderer::global_camera.position - V2(dim.x / 2, 0.0), scale, 0.02);
+        draw_text("OF THE", cam - V2(dim.x / 2, 0.0), scale, 0.02);
         
         scale = 1.0;
         dim = messure_text("TRUCK", scale);
-        draw_text("TRUCK", -Renderer::global_camera.position - V2(dim.x / 2, 5.0), scale, 0.40, 2.5);
+        draw_text("TRUCK", cam - V2(dim.x / 2, 5.0), scale, 0.40, 2.5);
 
         if (MOD(Logic::now(), 2.0) > 1.0) {
             scale = 0.5;
             dim = messure_text("PRESS ENTER TO START", scale);
-            draw_text("PRESS ENTER TO START", -Renderer::global_camera.position - V2(dim.x / 2, 13.0), scale, 0.02);
+            draw_text("PRESS ENTER TO START", cam - V2(dim.x / 2, 13.0), scale, 0.02);
         }
+
+        scale = 0.5;
+        for (u32 i = 0; i < highscores.size() || i < 3; i++) {
+            char *text = Util::format("%s %6d", highscores[i].name.c_str(), highscores[i].score);
+            dim = messure_text(text, scale);
+            draw_text(text, cam - V2(dim.x / 2 + sin(Logic::now() + i), 15 + 4 * i), scale, 0.5 / i);
+
+        }
+    
     } else {
         truck.draw();
         draw_bullets();

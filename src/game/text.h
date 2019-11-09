@@ -44,8 +44,8 @@ Vec4 BITMAP_FONT[] = {
     V4(368, 17,  6, 13), // :
     V4(375, 17, 12, 13), // _
 
-    V4(391, 17, 16, 14), // up
-    V4(408, 17, 12, 13), // down
+    V4(390, 17, 17, 14), // up
+    V4(408, 17, 17, 13), // down
 
     // 41
     V4(  0,  0, 12,  0), // Space
@@ -64,14 +64,21 @@ u32 char_to_index(char c) {
     if ('A' <= c && c <= 'Z')
         return (c - 'A') + 10;
 
+
     if (c == '-')
-        return 37;
+        return 36;
     if (c == ':')
-        return 38;
+        return 37;
     if (c == '_')
+        return 38;
+    if (c == '<')
         return 39;
+    if (c == '>')
+        return 40;
+
     if (c == ' ')
         return 41;
+
 
     return -1;
 }
