@@ -212,8 +212,11 @@ void draw() {
 
 
     if (game_over) {
-        draw_text("GAME OVER", V2(0, 0), 1.0, 0.5);
-        draw_game_over();
+        Vec2 dim = messure_text("GAME OVER", 1.0);
+        draw_text("GAME OVER", -Renderer::global_camera.position - 
+                                V2(dim.x / 2, 0.0), 
+                  1.0, sin(Logic::now() / 10) * 0.5);
+        // draw_game_over();
     } else {
         truck.draw();
         draw_bullets();
