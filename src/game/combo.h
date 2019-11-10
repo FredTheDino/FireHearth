@@ -21,6 +21,7 @@ void score_hit() {
 }
 
 void score_hit_enemy() {
+    Mixer::play_sound(ASSET_HIT, 0.9, 0.8);
     score_hit();
     score += 5 * multiplyer;
 }
@@ -30,6 +31,7 @@ void score_kill_enemy() {
 }
 
 void score_boost_kill_enemy() {
+    Mixer::play_sound(ASSET_BOOST_KILL, 0.8, 0.7);
     score_hit();
     score_hit();
     score += 20 * multiplyer;

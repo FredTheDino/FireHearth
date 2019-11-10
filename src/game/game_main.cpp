@@ -16,11 +16,24 @@ namespace Game {
 using namespace Input;
 Physics::ShapeID square;
 bool game_over = false;
+bool dead = false;
 bool music_muted = false;
 Mixer::AudioID music_id;
 
+void explode_truck();
 Vec2 get_truck_pos();
 Vec2 paralax(Vec2 position, f32 distance);
+
+void set_game_over() {
+    game_over = true;
+}
+
+void end_game() {
+    if (dead) return;
+    Logic::add_callback(Logic::At::PRE_UPDATE, set_game_over, Logic::now() + 3);
+    explode_truck();
+    dead = true;
+}
 
 const float START_TRASH_LEVEL = -50;
 const float COLLISION_TRASH_LEVEL = 20;
@@ -44,6 +57,23 @@ f32 groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 #include "star_particles.h"
 
 Truck truck;
+
+void explode_truck() {
+    Mixer::play_sound(ASSET_DEATH, 1.0, 0.7);
+    truck.smoke_particles.position = truck.body.position;
+    truck.smoke_particles.velocity_dir = {0, 2 * PI};
+    truck.smoke_particles.velocity = {1, 7};
+    for (int i = 0; i < 40; i++) {
+        truck.smoke_particles.spawn();
+    }
+
+    truck.super_particles.position = truck.body.position;
+    truck.super_particles.velocity_dir = {0, 2 * PI};
+    truck.super_particles.velocity = {1, 14};
+    for (int i = 0; i < 60; i++) {
+        truck.super_particles.spawn();
+    }
+}
 
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
@@ -161,20 +191,24 @@ void update_game_over_screen() {
     }
 
     if (pressed(Player::P1, Name::UP)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_space = (highscore_space + 1) % 3;
     }
 
     if (pressed(Player::P1, Name::DOWN)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         if (highscore_space == 0) highscore_space = 2;
         else highscore_space--;
     }
 
     if (pressed(Player::P1, Name::CONFIRM)) {
+        Mixer::play_sound(ASSET_SELECT, 1.5, 0.5);
         highscore_space = 0;
         write_highscores(highscores, highscore_name, score);
         highscores = read_highscores();
         highscore_name = "AAA";
         game_over = false;
+        dead = false;
         title_screen = true;
         initalize_enemies();
         truck.reset();
@@ -207,7 +241,7 @@ void update_game(f32 delta) {
                 truck.super_boost();
                 enemy->hp = 0;
             } else {
-                game_over = true;
+                end_game();
             }
         }
     }
@@ -225,14 +259,10 @@ void update_game(f32 delta) {
         }
     }
 
-    if (down(Player::P1, Name::BOOST)) {
-        Renderer::global_camera.shake = random_unit_vec2() * 0.001;
-    }
-
     camera_follow(truck.body.position, delta);
 
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
-        game_over = true;
+        end_game();
     } else if (currentTrashLevel < goalTrashLevel){
         currentTrashLevel += TRASH_VELOCITY;
     }
