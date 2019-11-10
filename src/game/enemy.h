@@ -44,15 +44,23 @@ struct TrashBag : public Enemy{
     orig_pos(pos) {
         animation_delay = 0.5;
         images.push_back(ASSET_TRASH_SLEEP);
+        side_speed = random_real(-3, 3);
     }
 
     const f32 SPEED = 6;
     f32 buryTime = 0;
+    f32 side_speed;
     bool onGround = false;
 
     void update(f32 delta) {
         time += delta;
         animate(time);
+
+        pos.x += delta * side_speed;
+        if (pos.x < WORLD_LEFT_EDGE * 0.8)
+            side_speed =  ABS(side_speed);
+        if (pos.x > WORLD_RIGHT_EDGE * 0.8)
+            side_speed = -ABS(side_speed);
 
         if (pos.y <= groundLevel) {
             buryTime += delta;

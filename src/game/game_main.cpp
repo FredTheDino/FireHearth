@@ -273,6 +273,7 @@ void update_game_over_screen(f32 delta) {
         first_pass = true;
         reset_score();
         bullets.clear();
+        stars.clear();
     }
 }
 
