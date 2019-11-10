@@ -14,7 +14,7 @@ const f32 TRUCK_BOOST_MAX = 60.0;
 const f32 TRUCK_BOOST_TIME_MAX = 0.5;
 const f32 TRUCK_BOOST_TIME_MIN = 0.0;
 
-const f32 WIND_FORCE = 5;
+const f32 WIND_FORCE = 2;
 
 struct Bullet {
     Physics::Body body;
@@ -47,6 +47,8 @@ struct Truck {
     void update(f32 delta);
 
     void draw();
+
+    void reset();
 };
 
 std::vector<Bullet> bullets;

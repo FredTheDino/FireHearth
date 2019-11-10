@@ -85,16 +85,16 @@ void Truck::update(f32 delta) {
 	    game_over = true;
     }
 
-    if (body.position.y >= WORLD_TOP_EDGE * 2) {
-        body.velocity += V2(0, -WIND_FORCE);
+    if (body.position.y >= WORLD_TOP_EDGE * 1.2) {
+        body.velocity += V2(0, -WIND_FORCE) * ABS(WORLD_TOP_EDGE * 2 - body.position.y);
     }
 
     if (body.position.x >= WORLD_RIGHT_EDGE) {
-        body.velocity += V2(-WIND_FORCE, 0);
+        body.velocity += V2(-WIND_FORCE, 0) * ABS(WORLD_RIGHT_EDGE - body.position.x);
     }
 
     if (body.position.x <= WORLD_LEFT_EDGE) {
-        body.velocity += V2(WIND_FORCE, 0);
+        body.velocity += V2(WIND_FORCE, 0) * ABS(WORLD_LEFT_EDGE - body.position.x);
     }
 
     if (pressed(Player::P1, Name::BOOST)) {
@@ -153,6 +153,15 @@ void Truck::draw() {
     // Physics::debug_draw_body(&body);
 }
 
+void Truck::reset() {
+    body.position = V2(0, 0);
+    body.velocity = V2(1, 0);
+    forward = V2(1, 0);
+    last_shot = 0;
+    boost_timer = TRUCK_BOOST_TIME_MAX;
+    max_out = false;
+}
+
 Truck create_truck() {
     auto boost_particles = Renderer::create_particle_system(250, V2(0, 0));
     boost_particles.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 1, 1, 1, 1);
@@ -191,7 +200,7 @@ Truck create_truck() {
 
     Truck truck = { Physics::create_body(square, 1.0, 0xFF, 0.0, 0.2),
                     super_particles, boost_particles, smoke_particles};
+    truck.reset();
     return truck;
 }
-
 

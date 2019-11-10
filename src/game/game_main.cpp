@@ -155,7 +155,7 @@ void update_game_over_screen() {
             game_over = false;
             title_screen = true;
             initalize_enemies();
-            truck = create_truck();
+            truck.reset();
             currentTrashLevel = START_TRASH_LEVEL;
             goalTrashLevel = MIN_TRASH_LEVEL;
             groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
