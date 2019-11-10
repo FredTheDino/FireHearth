@@ -20,7 +20,6 @@ std::vector<HighScore> read_highscores() {
     int score;
     while (input >> name) {
         input >> score;
-        LOG("%s %d", name.c_str(), score);
         scores.push_back({ name, score });
     }
 
