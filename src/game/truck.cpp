@@ -20,13 +20,15 @@ void initalize_bullets() {
 }
 
 void create_bullet(Vec2 position, Vec2 forward) {
+    f32 bulletSpread = random_real(-0.15, 0.15);
+    forward = rotate(forward, bulletSpread);
     Bullet bullet;
     bullet.body = Physics::create_body(square, 1.0, 0xFF, 0.0, 0.0);
     bullet.body.scale = bullet.dimension;
     bullet.spawn_time = Logic::now();
     bullet.body.position = position;
-    bullet.body.velocity = forward * bullet.speed;
     bullet.angle = -angle(forward);
+    bullet.body.velocity = forward * bullet.speed;
     bullet.body.rotation = bullet.angle;
     bullets.push_back(bullet);
 }
