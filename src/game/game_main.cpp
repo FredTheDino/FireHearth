@@ -134,6 +134,7 @@ void update_title_screen() {
 }
 
 f32 time_pressed = 0;
+f32 update_speed = 0;
 int highscore_index[] = { 10, 10, 10 };
 u32 highscore_space = 0;
 std::string highscore_name = "AAA";
@@ -143,14 +144,17 @@ void update_game_over_screen(f32 delta) {
         spawnStar();
     }
     if (pressed(Player::P1, Name::CYCLEDOWN)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_index[highscore_space] += 1;
         highscore_index[highscore_space] %= VALID_CHARS.size();
         highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
     }
     
     if (down(Player::P1, Name::CYCLEDOWN)) {
-        time_pressed += delta;
+        time_pressed += delta * update_speed;
+        update_speed += delta;
         if (time_pressed >= 0.2) {
+            Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
             highscore_index[highscore_space] += 1;
             highscore_index[highscore_space] %= VALID_CHARS.size();
             highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
@@ -160,9 +164,11 @@ void update_game_over_screen(f32 delta) {
 
     if (released(Player::P1, Name::CYCLEDOWN)) {
         time_pressed = 0;
+        update_speed = 1;
     }
 
     if (pressed(Player::P1, Name::BOOST)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_index[highscore_space] -= 1;
         if (highscore_index[highscore_space] == -1)
             highscore_index[highscore_space] = VALID_CHARS.size() - 1;
@@ -170,8 +176,10 @@ void update_game_over_screen(f32 delta) {
     }
 
     if (down(Player::P1, Name::BOOST)) {
-        time_pressed += delta;
+        time_pressed += delta * update_speed;
+        update_speed += delta;
         if (time_pressed >= 0.2) {
+            Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
             highscore_index[highscore_space] -= 1;
             if (highscore_index[highscore_space] == -1)
                 highscore_index[highscore_space] = VALID_CHARS.size() - 1;
@@ -182,18 +190,22 @@ void update_game_over_screen(f32 delta) {
 
     if (released(Player::P1, Name::BOOST)) {
         time_pressed = 0;
+        update_speed = 1;
     }
 
     if (pressed(Player::P1, Name::UP)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_space = (highscore_space + 1) % 3;
     }
 
     if (pressed(Player::P1, Name::DOWN)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         if (highscore_space == 0) highscore_space = 2;
         else highscore_space--;
     }
 
     if (pressed(Player::P1, Name::CONFIRM)) {
+        Mixer::play_sound(ASSET_SELECT, 2.0, 0.5);
         highscore_space = 0;
         write_highscores(highscores, highscore_name, score);
         highscores = read_highscores();
