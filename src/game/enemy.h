@@ -85,13 +85,14 @@ struct TrashBag : public Enemy{
 
 struct Banana : public Enemy {
     const f32 SPEED = 5;
-    const f32 SPEED_CHASING = 10;
-    const f32 CHASE_DIST = 30;
+    const f32 SPEED_CHASING = 15;
+    const f32 CHASE_DIST = 40;
 
     Banana(Vec2 pos) :
         Enemy(pos, V2(BANANA_SIZE, BANANA_SIZE), 0, BANANA_HP),
         velocity(V2(SPEED, 0)),
         orig_pos(pos) {
+            boost_killable = false;
             images.push_back(ASSET_BANANA1);
             images.push_back(ASSET_BANANA2);
             images.push_back(ASSET_BANANA3);
