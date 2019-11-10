@@ -50,6 +50,7 @@ void create_bullet(Vec2 position, Vec2 forward) {
     bullet.body.velocity = forward * bullet.speed;
     bullet.body.rotation = bullet.angle;
     bullets.push_back(bullet);
+    Mixer::play_sound(ASSET_SHOOT);
 }
 
 void update_bullets(f32 delta) {
@@ -79,6 +80,15 @@ void Truck::boost(f32 delta) {
     // boost_particles.spawn();
     body.velocity += forward * TRUCK_BOOST_STRENGTH * delta;
 
+
+    if (random_real() > 0.9) {
+        if (boost_timer > 0.0 && !max_out) {
+            Mixer::play_sound(ASSET_BOOSTER, 0.5, 0.2, 0.1);
+        } else {
+            Mixer::play_sound(ASSET_BOOSTER, 0.3, 0.2, 0.2);
+        }
+    }
+
     if (boost_timer > 0.0 && !max_out) {
         if (random_real() < 0.5)
             super_particles.spawn();
@@ -105,7 +115,8 @@ void Truck::update(f32 delta) {
     smoke_particles.spawn();
 
     if (body.position.y <= groundLevel) {
-	    game_over = true;
+        explode_truck();
+        game_over = true;
     }
 
     if (body.position.y >= WORLD_TOP_EDGE * 1.2) {
@@ -157,10 +168,8 @@ void Truck::update(f32 delta) {
 
     if (down(Player::P1, Name::SHOOT) &&
         Logic::now() >= last_shot + TRUCK_SHOOT_DELAY) {
-            create_bullet(body.position + forward * dimension.x * 0.4, forward);
-            last_shot = Logic::now();
-	    Mixer::play_sound(ASSET_NOISE, 1.0, 0.5);
-
+        create_bullet(body.position + forward * dimension.x * 0.4, forward);
+        last_shot = Logic::now();
     }
 
     super_particles.update(delta);

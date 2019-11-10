@@ -29,6 +29,11 @@ f32 currentTrashLevel = START_TRASH_LEVEL;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
+void explode_truck() {
+    Mixer::play_sound(ASSET_DEATH, 1.0, 0.7);
+    // TODO(ed): Death particles?
+}
+
 #include "text.h"
 #include "highscore.h"
 #include "combo.h"
@@ -78,8 +83,7 @@ void setup() {
     //Confirm
     add(K(RETURN), Player::P1, Name::CONFIRM);
 
-    Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
-              ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
+    // Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0,0, 0, true);
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
@@ -133,12 +137,14 @@ u32 highscore_space = 0;
 std::string highscore_name = "AAA";
 void update_game_over_screen() {
     if (pressed(Player::P1, Name::BOOST)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_index += 1;
         highscore_index = highscore_index % VALID_CHARS.size();
         highscore_name[highscore_space] = VALID_CHARS[highscore_index];
     }
 
     if (pressed(Player::P1, Name::DOWN)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_index -= 1;
         if (highscore_index == -1)
             highscore_index = VALID_CHARS.size() - 1;
@@ -146,6 +152,7 @@ void update_game_over_screen() {
     }
 
     if (pressed(Player::P1, Name::CONFIRM)) {
+        Mixer::play_sound(ASSET_SELECT, 1.5, 0.5);
         highscore_index = 10;
         highscore_space++;
         if (highscore_space == highscore_name.size()) {
@@ -187,6 +194,7 @@ void update_game(f32 delta) {
                 truck.super_boost();
                 enemy->hp = 0;
             } else {
+                explode_truck();
                 game_over = true;
             }
         }
@@ -203,10 +211,6 @@ void update_game(f32 delta) {
                 emit_hit_particles(bullet.body.position);
             }
         }
-    }
-
-    if (down(Player::P1, Name::BOOST)) {
-        Renderer::global_camera.shake = random_unit_vec2() * 0.001;
     }
 
     camera_follow(truck.body.position, delta);
