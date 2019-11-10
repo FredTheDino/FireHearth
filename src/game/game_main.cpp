@@ -63,7 +63,7 @@ void setup() {
     // Bind wasd
     add(K(w), Player::P1, Name::BOOST);
     add(K(d), Player::P1, Name::UP);
-    //add(K(s), Player::P1, Name::DOWN); Add brake?
+    add(K(s), Player::P1, Name::DOWN); // Add brake?
     add(K(a), Player::P1, Name::DOWN);
 
     // Bind arrow keys
@@ -74,9 +74,6 @@ void setup() {
 
     // Shoot!
     add(K(SPACE), Player::P1, Name::SHOOT);
-
-    // Restart
-    add(K(r), Player::P1, Name::RESTART);
 
     //Confirm
     add(K(RETURN), Player::P1, Name::CONFIRM);
@@ -157,21 +154,15 @@ void update_game_over_screen() {
             highscore_name = "AAA";
             game_over = false;
             title_screen = true;
+            initalize_enemies();
+            truck = create_truck();
+            currentTrashLevel = START_TRASH_LEVEL;
+            goalTrashLevel = MIN_TRASH_LEVEL;
+            groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
             // TODO(ed): Reset truck here.
             reset_score();
         }
-    }
-
-    if (pressed(Player::P1, Name::RESTART)) {
-        game_over = false;
-        initalize_enemies();
-        truck = create_truck();
-        currentTrashLevel = START_TRASH_LEVEL;
-        goalTrashLevel = MIN_TRASH_LEVEL;
-        groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
-
-        reset_score();
     }
 }
 
@@ -313,7 +304,6 @@ void draw() {
         scale = 0.5;
         for (u32 i = 0; i < highscores.size() && i < 3; i++) {
             char *text = Util::format("%s %10d", highscores[i].name.c_str(), highscores[i].score);
-            LOG(text);
             dim = messure_text(text, scale);
             draw_text(text, cam - V2(dim.x / 2 + sin(Logic::now() + i), 19 + 4 * i), scale, 0.5 / (i + 1));
 

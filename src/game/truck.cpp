@@ -75,11 +75,21 @@ void Truck::update(f32 delta) {
     }
     smoke_particles.spawn();
 
-    if (body.position.y <= groundLevel){
-	game_over = true;
+    if (body.position.y <= groundLevel) {
+	    game_over = true;
     }
 
-    
+    if (body.position.y >= WORLD_TOP_EDGE * 2) {
+        body.velocity += V2(0, -WIND_FORCE);
+    }
+
+    if (body.position.x >= WORLD_RIGHT_EDGE) {
+        body.velocity += V2(-WIND_FORCE, 0);
+    }
+
+    if (body.position.x <= WORLD_LEFT_EDGE) {
+        body.velocity += V2(WIND_FORCE, 0);
+    }
 
     if (pressed(Player::P1, Name::BOOST)) {
         body.velocity += normalize(body.velocity) * TRUCK_BOOST_INITIAL;

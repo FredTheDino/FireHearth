@@ -77,7 +77,7 @@ static bool debug_view = false;
 void setup_debug_keybindings() {
     using namespace Input;
 
-    CHECK(add(K(ESCAPE), Player::P1, Name::QUIT),
+    CHECK(add(K(k), Player::P1, Name::QUIT),
           "Failed to create mapping");
     CHECK(add(K(F1), Player::P1, Name::DEBUG_PERF),
           "Failed to create mapping");
