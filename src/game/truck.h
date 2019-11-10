@@ -13,6 +13,7 @@ const f32 TRUCK_SHOOT_DELAY = 0.1;
 const f32 TRUCK_BOOST_MAX = 60.0;
 const f32 TRUCK_BOOST_TIME_MAX = 0.5;
 const f32 TRUCK_BOOST_TIME_MIN = 0.0;
+const f32 TRUCK_FLIGHT_CONSTANT = 100.0;
 
 const f32 WIND_FORCE = 2;
 
@@ -41,6 +42,7 @@ struct Truck {
     f32 last_shot = 0;
     f32 boost_timer = TRUCK_BOOST_TIME_MAX;
     bool max_out = false;
+    bool boost_to_kill = false;
 
     void boost(f32 delta);
 

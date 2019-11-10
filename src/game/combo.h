@@ -29,6 +29,12 @@ void score_kill_enemy() {
     score += 10 * multiplyer;
 }
 
+void score_boost_kill_enemy() {
+    score_hit();
+    score_hit();
+    score += 20 * multiplyer;
+}
+
 void update_score() {
     if (Logic::now() > combo_time) {
         multiplyer = 1;
