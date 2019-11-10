@@ -75,9 +75,6 @@ void setup() {
     // Shoot!
     add(K(SPACE), Player::P1, Name::SHOOT);
 
-    // Restart
-    add(K(r), Player::P1, Name::RESTART);
-
     //Confirm
     add(K(RETURN), Player::P1, Name::CONFIRM);
 
@@ -157,21 +154,15 @@ void update_game_over_screen() {
             highscore_name = "AAA";
             game_over = false;
             title_screen = true;
+            initalize_enemies();
+            truck = create_truck();
+            currentTrashLevel = START_TRASH_LEVEL;
+            goalTrashLevel = MIN_TRASH_LEVEL;
+            groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
             // TODO(ed): Reset truck here.
             reset_score();
         }
-    }
-
-    if (pressed(Player::P1, Name::RESTART)) {
-        game_over = false;
-        initalize_enemies();
-        truck = create_truck();
-        currentTrashLevel = START_TRASH_LEVEL;
-        goalTrashLevel = MIN_TRASH_LEVEL;
-        groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
-
-        reset_score();
     }
 }
 
