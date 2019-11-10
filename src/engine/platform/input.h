@@ -83,6 +83,7 @@ enum class Name {
     RESTART,
     CONFIRM,
     CYCLEDOWN,
+    MUTE,
 
     QUIT,
 

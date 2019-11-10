@@ -16,6 +16,9 @@ namespace Game {
 using namespace Input;
 Physics::ShapeID square;
 bool game_over = false;
+bool music_muted = false;
+Mixer::AudioID music_id;
+
 Vec2 get_truck_pos();
 Vec2 paralax(Vec2 position, f32 distance);
 
@@ -58,6 +61,11 @@ Vec2 get_truck_pos() {
     return truck.body.position;
 }
 
+Mixer::AudioID play_music() {
+    return Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
+              ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
+}
+
 void setup() {
     highscores = read_highscores();
 
@@ -76,11 +84,13 @@ void setup() {
     // Shoot!
     add(K(SPACE), Player::P1, Name::SHOOT);
 
-    //Confirm
+    // Confirm
     add(K(RETURN), Player::P1, Name::CONFIRM);
 
-    Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
-              ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
+    // Mute
+    add(K(m), Player::P1, Name::MUTE);
+
+    music_id = play_music();
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
@@ -238,8 +248,18 @@ void update(f32 delta) {
         update_game_over_screen();
     else
         update_game(delta);
-    
+
     updateStars(delta);
+
+    // Mute logic
+    if (pressed(Player::P1, Name::MUTE)) {
+        if (music_muted) {
+            music_id = play_music();
+        } else {
+            stop_sound(music_id);
+        }
+        music_muted = !music_muted;
+    }
 }
 
 // Main draw
