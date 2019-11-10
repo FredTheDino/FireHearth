@@ -176,4 +176,9 @@ void destroy_particle_system(ParticleSystem *system) {
     system->particles = nullptr;
 }
 
+void ParticleSystem::clear() {
+    head = 0;
+    tail = 1;
+}
+
 };

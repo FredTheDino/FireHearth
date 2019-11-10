@@ -3,16 +3,17 @@ const Vec4 BULLET_SPRITE = V4(10, 0, 6, 3);
 const f32 BULLET_ALIVE_TIME = 5.0;
 const f32 BULLET_SPEED = 100.0;
 
-const f32 TRUCK_MAX_SPEED = 225.0;
+const f32 TRUCK_MAX_SPEED = 300.0;
 const f32 TRUCK_BOOST_STRENGTH = 75.0;
 const f32 TRUCK_BOOST_INITIAL = 15.0;
 const f32 TRUCK_ROTATION_SPEED = 8.0;
 const f32 TRUCK_VELOCITY_DAMPING = 0.4;
 const f32 TRUCK_VELOCITY_WEIGHT = 0.2;
 const f32 TRUCK_SHOOT_DELAY = 0.1;
-const f32 TRUCK_BOOST_MAX = 60.0;
+const f32 TRUCK_BOOST_MAX = 100.0;
 const f32 TRUCK_BOOST_TIME_MAX = 0.5;
 const f32 TRUCK_BOOST_TIME_MIN = 0.0;
+const f32 TRUCK_FLIGHT_CONSTANT = 200.0;
 
 const f32 WIND_FORCE = 2;
 
@@ -41,6 +42,9 @@ struct Truck {
     f32 last_shot = 0;
     f32 boost_timer = TRUCK_BOOST_TIME_MAX;
     bool max_out = false;
+    bool boost_to_kill = false;
+
+    void super_boost();
 
     void boost(f32 delta);
 
@@ -52,6 +56,7 @@ struct Truck {
 };
 
 std::vector<Bullet> bullets;
+Renderer::ParticleSystem bullet_trail;
 void initalize_bullets();
 
 void create_bullet(Vec2 position, Vec2 forward);

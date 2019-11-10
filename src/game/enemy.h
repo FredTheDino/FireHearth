@@ -20,6 +20,10 @@ struct Enemy : public Entity {
 
     virtual ~Enemy() {}
 
+    virtual bool boost_killable() {
+        return true;
+    }
+
     u32 hp;
     f32 time;
     f32 animation_delay;
@@ -142,6 +146,10 @@ struct BigBoi : public Enemy {
             images.push_back(ASSET_BIGBOI_RIGHT);
     }
 
+    virtual bool boost_killable() {
+        return false;
+    }
+
     void update(f32 delta) override;
 
     Vec2 velocity;
@@ -151,9 +159,9 @@ struct BigBoi : public Enemy {
 };
 
 struct BigBoiBullet : public Enemy {
-    BigBoiBullet(Vec2 pos) :
+    BigBoiBullet(Vec2 pos, f32 x_velocity) :
         Enemy(pos, V2(BIGBOI_BULLET_SIZE, BIGBOI_BULLET_SIZE), 0, 1),
-        velocity(V2(0, BIGBOI_BULLET_SPEED)),
+        velocity(V2(x_velocity, BIGBOI_BULLET_SPEED)),
         acceleration(V2(0, BIGBOI_BULLET_ACCELERATION)),
         orig_y(pos.y) {
             image = ASSET_BIGBOI_BULLET;
@@ -212,7 +220,7 @@ struct Spawner {
                     spawn_trashbag();
                     last_spawn[TRASHBAG_INDEX] = time;
                 }
-                if (time - last_spawn[BANANA_INDEX] > 8) {
+                if (time - last_spawn[BANANA_INDEX] > 7) {
                     spawn_banana();
                     last_spawn[BANANA_INDEX] = time;
                 }
@@ -259,8 +267,10 @@ struct Spawner {
         enemies->push_back(new BigBoi(V2(x,y), this));
     }
 
-    void spawn_bigboibullet(Vec2 pos) {
-        enemies->push_back(new BigBoiBullet(pos));
+    void spawn_bigboibullets(Vec2 pos) {
+        enemies->push_back(new BigBoiBullet(pos, 3));
+        enemies->push_back(new BigBoiBullet(pos, 0));
+        enemies->push_back(new BigBoiBullet(pos, -3));
     }
 
     void reset() {
@@ -325,6 +335,17 @@ void emit_dead_particles(Vec2 position) {
     hit_particles.spawn_size = old;
 }
 
+void emit_boost_to_kill_particles(Vec2 position) {
+    hit_particles.position = position;
+    auto old = hit_particles.velocity;
+    hit_particles.velocity = {5.0, 10.0};
+    u32 count = random_int() % 10 + 15;
+    for (u32 i = 0; i < count; i++) {
+        hit_particles.spawn();
+    }
+    hit_particles.velocity = old;
+}
+
 void update_enemies(f32 delta) {
     hit_particles.update(delta);
     for (s32 i = enemies.size() - 1; i >= 0; i--) {
@@ -380,7 +401,7 @@ void BigBoi::update(f32 delta) {
         image = ASSET_BIGBOI_FIRE;
         if (!fired) {
             fired = true;
-            spawner->spawn_bigboibullet(pos);
+            spawner->spawn_bigboibullets(pos);
         }
     } else {
         fired = false;
