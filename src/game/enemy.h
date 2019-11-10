@@ -20,7 +20,7 @@ struct Enemy : public Entity {
 
     virtual ~Enemy() {}
 
-    virtual bool boost_killable() {
+    bool boost_killable() {
         return true;
     }
 
@@ -146,10 +146,6 @@ struct BigBoi : public Enemy {
             images.push_back(ASSET_BIGBOI_RIGHT);
     }
 
-    virtual bool boost_killable() {
-        return false;
-    }
-
     void update(f32 delta) override;
 
     Vec2 velocity;
@@ -230,7 +226,6 @@ struct Spawner {
                 }
                 break;
             case 3:
-                LOG("%f", threat3_coeff(time));
                 if (time - last_spawn[TRASHBAG_INDEX] > 2 * threat3_coeff(time)) {
                     spawn_trashbag();
                     last_spawn[TRASHBAG_INDEX] = time;
