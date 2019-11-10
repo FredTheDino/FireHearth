@@ -238,7 +238,7 @@ struct Spawner {
 
     void spawn_bigboi() {
         f32 x = random_real(WORLD_LEFT_EDGE * 0.9, WORLD_RIGHT_EDGE * 0.9);
-        f32 y = groundLevel;
+        f32 y = WORLD_BOTTOM_EDGE - 5;
         enemies->push_back(new BigBoi(V2(x,y), this));
     }
 
@@ -366,5 +366,5 @@ void BigBoi::update(f32 delta) {
         time = 0;
     }
 
-    pos.y = groundLevel;
+    pos.y += (groundLevel - pos.y) * 0.2 * delta;
 }
