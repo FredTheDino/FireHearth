@@ -146,6 +146,7 @@ std::string highscore_name = "AAA";
 void update_game_over_screen() {
     if (highscores.empty() || score > highscores[0].score) {
         spawnStar();
+        //Write highscore
     }
     if (pressed(Player::P1, Name::CYCLEDOWN)) {
         highscore_index[highscore_space] += 1;
@@ -285,7 +286,14 @@ void draw() {
     Vec2 cam = -Renderer::global_camera.position;
     if (game_over) {
         Vec2 dim;
-        f32 size = 1.0;
+        f32 size = 1.6;
+
+        if (highscores.empty() || score > highscores[0].score) {
+            dim = messure_text(" NEW HIGHSCORE", size);
+            draw_text(" NEW HIGHSCORE", cam - V2(dim.x / 2, -20), size, 0.7, 2.5);
+        }
+
+        size = 1.0;
         dim = messure_text("GAME OVER", size);
         draw_text("GAME OVER", cam - V2(dim.x / 2, -6.0),
                   size, sin(Logic::now() / 10) * 0.5);
