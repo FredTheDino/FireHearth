@@ -38,6 +38,7 @@ f32 groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 #include "truck.cpp"
 #include "clouds.h"
 #include "gameover.cpp"
+#include "star_particles.h"
 
 Truck truck;
 
@@ -98,6 +99,7 @@ void setup() {
 
     initalize_enemies();
     createCloudSystems();
+    createStarSystem();
 
     Renderer::global_camera.zoom = 3.335 / 200.0;
 
@@ -131,6 +133,9 @@ int highscore_index = 10;
 int highscore_space = 0;
 std::string highscore_name = "AAA";
 void update_game_over_screen() {
+    if (highscores.empty() || score > highscores[0].score) {
+        spawnStar();
+    }
     if (pressed(Player::P1, Name::BOOST)) {
         highscore_index += 1;
         highscore_index = highscore_index % VALID_CHARS.size();
@@ -224,6 +229,8 @@ void update(f32 delta) {
         update_game_over_screen();
     else
         update_game(delta);
+    
+    updateStars(delta);
 }
 
 // Main draw
@@ -244,6 +251,7 @@ void draw() {
         V2(-60, currentTrashLevel),
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 
+    drawStars();
 
     Vec2 cam = -Renderer::global_camera.position;
     if (game_over) {
