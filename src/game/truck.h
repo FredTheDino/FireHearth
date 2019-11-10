@@ -56,6 +56,7 @@ struct Truck {
 };
 
 std::vector<Bullet> bullets;
+Renderer::ParticleSystem bullet_trail;
 void initalize_bullets();
 
 void create_bullet(Vec2 position, Vec2 forward);

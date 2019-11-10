@@ -95,6 +95,7 @@ void setup() {
     }
 
     truck = create_truck();
+    initalize_bullets();
 
     initalize_enemies();
     createCloudSystems();

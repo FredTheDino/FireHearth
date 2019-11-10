@@ -8,6 +8,9 @@ void Bullet::draw() {
                           ASSET_PARTICLE_SPRITESHEEP,
                           V2(-BULLET_SPRITE.x, BULLET_SPRITE.y),
                           V2(BULLET_SPRITE.z + 1, BULLET_SPRITE.w + 1));
+    bullet_trail.position = body.position;
+    if (random_real() < 0.3)
+        bullet_trail.spawn();
     // Physics::debug_draw_body(&body);
 }
 
@@ -17,6 +20,22 @@ bool Bullet::is_dead() const {
 
 void initalize_bullets() {
     bullets.reserve(128);
+
+    bullet_trail = Renderer::create_particle_system(500, V2(0, 0));
+    bullet_trail.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 1, 1, 1, 1);
+    bullet_trail.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 4, 1, 1, 1);
+    bullet_trail.relative = false;
+    bullet_trail.one_color = true;
+    bullet_trail.one_alpha = true;
+    bullet_trail.velocity = {0.0, 0.0};
+    bullet_trail.alive_time = {0.3, 1};
+    bullet_trail.rotation = {0, 0};
+    bullet_trail.spawn_size = {0.2, 0.4};
+    bullet_trail.die_size = {0.0, 0.0};
+}
+
+void clear_bullets() {
+    bullets.clear();
 }
 
 void create_bullet(Vec2 position, Vec2 forward) {
@@ -44,11 +63,13 @@ void update_bullets(f32 delta) {
     bullets.erase(
         std::remove_if(bullets.begin(), bullets.end(), is_dead),
         bullets.end());
+    bullet_trail.update(delta);
 }
 
 void draw_bullets() {
     for (Bullet &bullet : bullets)
         bullet.draw();
+    bullet_trail.draw();
 }
 
 void Truck::boost(f32 delta) {
@@ -164,9 +185,9 @@ void Truck::super_boost() {
 }
 
 void Truck::reset() {
-    body.position = V2(0, 0);
-    body.velocity = V2(1, 0);
-    forward = V2(1, 0);
+    body.position = V2(0, WORLD_TOP_EDGE + 3);
+    body.velocity = V2(0, -5);
+    forward = V2(0, -1);
     last_shot = 0;
     boost_timer = TRUCK_BOOST_TIME_MAX;
     max_out = false;
