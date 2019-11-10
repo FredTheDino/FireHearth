@@ -155,7 +155,7 @@ void update_game_over_screen() {
             game_over = false;
             title_screen = true;
             initalize_enemies();
-            truck = create_truck();
+            truck.reset();
             currentTrashLevel = START_TRASH_LEVEL;
             goalTrashLevel = MIN_TRASH_LEVEL;
             groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
@@ -315,7 +315,7 @@ void draw() {
         draw_enemies();
 
         f32 scale = 1.0;
-        f32 wavey_ness = get_multiplier() / 5.0;
+        f32 wavey_ness = MIN(pow(get_multiplier(), 0.75) / 5.0, 2);
         char *score_text = Util::format("%10d %dX", get_score(), get_multiplier()); 
         Vec2 dim = messure_text(score_text, scale);
         draw_text(score_text, cam + V2(60 - dim.x, +27), scale, wavey_ness, wavey_ness);
