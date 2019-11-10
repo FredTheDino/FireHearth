@@ -169,7 +169,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
             Sound *sound = Asset::fetch_sound(source->source);
             source->sample += sound->sample_rate * source->pitch * TIME_STEP;
             u64 index = source->sample;
-            if (index == sound->num_samples) {
+            if (index >= sound->num_samples) {
                 if (source->looping) {
                     index = 0;
                     source->sample = 0;

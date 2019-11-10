@@ -124,7 +124,7 @@ void setup() {
     // Mute
     add(K(m), Player::P1, Name::MUTE);
 
-    // music_id = play_music();
+    music_id = play_music();
     // Fullscreen
     add(K(f), Player::P1, Name::FULLSCREEN);
 
@@ -342,9 +342,9 @@ void update(f32 delta) {
     // Mute logic
     if (pressed(Player::P1, Name::MUTE)) {
         if (music_muted) {
-            // music_id = play_music();
+            music_id = play_music();
         } else {
-            // stop_sound(music_id);
+            stop_sound(music_id);
         }
         music_muted = !music_muted;
     }
