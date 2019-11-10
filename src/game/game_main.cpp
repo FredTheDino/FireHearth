@@ -63,7 +63,7 @@ void setup() {
     // Bind wasd
     add(K(w), Player::P1, Name::BOOST);
     add(K(d), Player::P1, Name::UP);
-    //add(K(s), Player::P1, Name::DOWN); Add brake?
+    add(K(s), Player::P1, Name::DOWN); // Add brake?
     add(K(a), Player::P1, Name::DOWN);
 
     // Bind arrow keys
@@ -304,7 +304,6 @@ void draw() {
         scale = 0.5;
         for (u32 i = 0; i < highscores.size() && i < 3; i++) {
             char *text = Util::format("%s %10d", highscores[i].name.c_str(), highscores[i].score);
-            LOG(text);
             dim = messure_text(text, scale);
             draw_text(text, cam - V2(dim.x / 2 + sin(Logic::now() + i), 19 + 4 * i), scale, 0.5 / (i + 1));
 
