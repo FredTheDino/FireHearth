@@ -138,6 +138,7 @@ int highscore_index[] = { 10, 10, 10 };
 u32 highscore_space = 0;
 std::string highscore_name = "AAA";
 void update_game_over_screen() {
+    stars.update(Logic::delta());
     if (highscores.empty() || score > highscores[0].score) {
         spawnStar();
         //Write highscore
@@ -241,10 +242,10 @@ void update(f32 delta) {
         update_title_screen();
     else if (game_over)
         update_game_over_screen();
-    else
+    else {
+        stars.clear();
         update_game(delta);
-    
-    updateStars(delta);
+    }
 }
 
 // Main draw
@@ -268,6 +269,8 @@ void draw() {
     drawStars();
 
     Vec2 cam = -Renderer::global_camera.position;
+    
+    stars.position = V2(cam.x, WORLD_BOTTOM_EDGE);
     if (game_over) {
         Vec2 dim;
         f32 size = 1.6;
