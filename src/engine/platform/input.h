@@ -84,6 +84,7 @@ enum class Name {
     CONFIRM,
     CYCLEDOWN,
     MUTE,
+    FULLSCREEN,
 
     QUIT,
 
