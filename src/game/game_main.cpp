@@ -5,8 +5,8 @@
 #include <algorithm>
 
 const u32 NO_ASSET = 1024;
-const f32 WORLD_LEFT_EDGE  = -80;
-const f32 WORLD_RIGHT_EDGE =  80;
+const f32 WORLD_LEFT_EDGE  = -120;
+const f32 WORLD_RIGHT_EDGE =  120;
 const f32 WORLD_TOP_EDGE = 34;
 const f32 WORLD_BOTTOM_EDGE = -34;
 const f32 PIXEL_TO_WORLD = 1.0 / 3.0;

@@ -21,7 +21,7 @@ in vec4 pass_color;
 out vec4 color;
 
 void main() {
-    vec2 pixel_offset = vec2(shake.x, shake.y);
+    vec2 pixel_offset = vec2(0, 0); // vec2(shake.x, shake.y);
     color = texture(screen_sampler, pass_uv + pixel_offset);
     color = color;
 }
