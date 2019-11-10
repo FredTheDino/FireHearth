@@ -309,6 +309,7 @@ void update_enemies(f32 delta) {
     for (s32 i = enemies.size() - 1; i >= 0; i--) {
         enemies[i]->update(delta);
         if (enemies[i]->is_dead()) {
+            score_kill_enemy();
             emit_dead_particles(enemies[i]->pos);
             delete enemies[i];
             enemies.erase(enemies.begin() + i);

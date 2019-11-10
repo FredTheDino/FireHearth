@@ -2,6 +2,7 @@
 #define FOG_GAME
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 const u32 NO_ASSET = 1024;
 const f32 WORLD_LEFT_EDGE  = -80;
@@ -18,16 +19,19 @@ bool game_over = false;
 Vec2 get_truck_pos();
 Vec2 paralax(Vec2 position, f32 distance);
 
+const float START_TRASH_LEVEL = -50;
+const float COLLISION_TRASH_LEVEL = 20;
 const float MAX_TRASH_LEVEL = -15;
 const float MIN_TRASH_LEVEL = -43;
 const float TRASH_VELOCITY = 0.01;
 
-f32 currentTrashLevel = -50;
+f32 currentTrashLevel = START_TRASH_LEVEL;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
-f32 groundLevel = currentTrashLevel + 20;
+f32 groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
 #include "text.h"
 #include "highscore.h"
+#include "combo.h"
 #include "entity.h"
 #include "enemy.h"
 #include "truck.h"
@@ -44,8 +48,6 @@ float CAMERA_MAX = 20;
 float CAMERA_MIN = -20;
 
 const std::string VALID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-int score = 0;
 
 // TODO(ed): An enum for the game state
 bool title_screen = true;
@@ -104,7 +106,9 @@ void setup() {
 
     Logic::add_callback(Logic::At::PRE_UPDATE, spawnCloud, 0, Logic::FOREVER, 2);
 
-    // Prerender some clouds
+    reset_score();
+
+    // Warm the cloud particles
     for (u32 i = 0; i < 100; i++) {
         spawnCloud();
         updateClouds(2);
@@ -138,21 +142,24 @@ void update_game_over_screen() {
     
     if (pressed(Player::P1, Name::DOWN)) {
         highscore_index -= 1;
-        highscore_index = highscore_index % VALID_CHARS.size();
+        if (highscore_index == -1)
+            highscore_index = VALID_CHARS.size() - 1;
         highscore_name[highscore_space] = VALID_CHARS[highscore_index];
     }
 
     if (pressed(Player::P1, Name::CONFIRM)) {
         highscore_index = 10;
         highscore_space++;
-        if (highscore_space == 3) {
+        if (highscore_space == highscore_name.size()) {
             highscore_space = 0;
-            highscore_name[highscore_space] = VALID_CHARS[highscore_index];
             write_highscores(highscores, highscore_name, score);
             highscores = read_highscores();
             highscore_name = "AAA";
             game_over = false;
             title_screen = true;
+
+            // TODO(ed): Reset truck here.
+            reset_score();
         }
     }
 
@@ -160,9 +167,11 @@ void update_game_over_screen() {
         game_over = false;
         initalize_enemies();
         truck = create_truck();
-        currentTrashLevel = -50;
+        currentTrashLevel = START_TRASH_LEVEL;
         goalTrashLevel = MIN_TRASH_LEVEL;
-        groundLevel = currentTrashLevel + 20;
+        groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
+
+        reset_score();
     }
 }
 
@@ -172,6 +181,8 @@ void update_game(f32 delta) {
     update_bullets(delta);
     spawner.update(delta);
     update_enemies(delta);
+
+    update_score();
 
     for (Enemy* enemy : enemies) {
         Physics::Body enemy_body = enemy->get_body();
@@ -187,6 +198,7 @@ void update_game(f32 delta) {
             if (check_overlap(&bullet.body, &enemy_body)) {
                 bullet.hit_enemy = true;
                 enemy->hp -= 1;
+                score_hit_enemy();
                 emit_hit_particles(bullet.body.position);
             }
 
@@ -259,18 +271,19 @@ void draw() {
         char output[] = " \0";
         f32 spacing = 12 * PIXEL_TO_WORLD;
         f32 left = -spacing * 1.5;
+        size = 1.0;
         for (u32 i = 0; i < highscore_name.size(); i++) {
-            Vec2 position = cam + V2(left + i * spacing, -5.0);
+            Vec2 position = cam + V2(left + i * spacing, -8.0);
             if (i == highscore_space) {
                 output[0] = '<';
-                draw_text(output, position + V2(0,  2.0), 0.5);
+                draw_text(output, position + V2(0,  4.0), size);
                 output[0] = '>';
-                draw_text(output, position + V2(0, -2.0), 0.5);
+                draw_text(output, position + V2(0, -4.0), size);
             }
 
             if (MOD(Logic::now(), 0.8) > 0.4 || i != highscore_space) {
                 output[0] = highscore_name[i];
-                draw_text(output, position, 0.5);
+                draw_text(output, position, size);
             }
         }
 
@@ -298,10 +311,11 @@ void draw() {
         }
 
         scale = 0.5;
-        for (u32 i = 0; i < highscores.size() || i < 3; i++) {
-            char *text = Util::format("%s %6d", highscores[i].name.c_str(), highscores[i].score);
+        for (u32 i = 0; i < highscores.size() && i < 3; i++) {
+            char *text = Util::format("%s %10d", highscores[i].name.c_str(), highscores[i].score);
+            LOG(text);
             dim = messure_text(text, scale);
-            draw_text(text, cam - V2(dim.x / 2 + sin(Logic::now() + i), 15 + 4 * i), scale, 0.5 / i);
+            draw_text(text, cam - V2(dim.x / 2 + sin(Logic::now() + i), 19 + 4 * i), scale, 0.5 / (i + 1));
 
         }
     
@@ -309,6 +323,13 @@ void draw() {
         truck.draw();
         draw_bullets();
         draw_enemies();
+
+        f32 scale = 1.0;
+        f32 wavey_ness = get_multiplier() / 5.0;
+        char *score_text = Util::format("%10d %dX", get_score(), get_multiplier()); 
+        Vec2 dim = messure_text(score_text, scale);
+        draw_text(score_text, cam + V2(60 - dim.x, +27), scale, wavey_ness, wavey_ness);
+
     }
 }
 

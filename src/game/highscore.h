@@ -1,6 +1,10 @@
 struct HighScore {
     std::string name;
     u32 score;
+
+    bool operator< (const HighScore &other) const {
+        return score < other.score;
+    }
 };
 
 std::vector<HighScore> read_highscores() {
@@ -16,23 +20,17 @@ std::vector<HighScore> read_highscores() {
     int score;
     while (input >> name) {
         input >> score;
+        LOG("%s %d", name.c_str(), score);
         scores.push_back({ name, score });
     }
+
 
     return scores;
 }
 
 void write_highscores(std::vector<HighScore>& scores, std::string name, int score) {
     HighScore new_score = { name, score };
-
-    s32 index = scores.size();
-    for (s32 i = 0; i < scores.size(); i++) {
-        if (scores[i].score < new_score.score) {
-            index = i;
-            break;
-        }
-    }
-    scores.insert(scores.begin() + index, new_score);
+    scores.insert(std::upper_bound(scores.begin(), scores.end(), new_score), new_score);
 
     std::ofstream output("highscores.txt", std::ofstream::out);
     for (HighScore& score : scores) {
