@@ -14,6 +14,8 @@ const f32 TRUCK_BOOST_MAX = 60.0;
 const f32 TRUCK_BOOST_TIME_MAX = 0.5;
 const f32 TRUCK_BOOST_TIME_MIN = 0.0;
 
+const f32 WIND_FORCE = 5;
+
 struct Bullet {
     Physics::Body body;
     f32 spawn_time;
