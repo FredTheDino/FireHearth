@@ -31,7 +31,6 @@ f32 groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
 void explode_truck() {
     Mixer::play_sound(ASSET_DEATH, 1.0, 0.7);
-    // TODO(ed): Death particles?
 }
 
 #include "text.h"
@@ -84,7 +83,7 @@ void setup() {
     //Confirm
     add(K(RETURN), Player::P1, Name::CONFIRM);
 
-    // Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0,0, 0, true);
+    //Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0,0, 0, true);
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
@@ -134,20 +133,35 @@ void update_title_screen() {
         title_screen = false;
 }
 
+f32 time_pressed = 0;
 int highscore_index[] = { 10, 10, 10 };
 u32 highscore_space = 0;
 std::string highscore_name = "AAA";
-void update_game_over_screen() {
+void update_game_over_screen(f32 delta) {
     stars.update(Logic::delta());
     if (highscores.empty() || score > highscores[0].score) {
         spawnStar();
-        //Write highscore
     }
     if (pressed(Player::P1, Name::CYCLEDOWN)) {
         highscore_index[highscore_space] += 1;
         highscore_index[highscore_space] %= VALID_CHARS.size();
         highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
     }
+    
+    if (down(Player::P1, Name::CYCLEDOWN)) {
+        time_pressed += delta;
+        if (time_pressed >= 0.2) {
+            highscore_index[highscore_space] += 1;
+            highscore_index[highscore_space] %= VALID_CHARS.size();
+            highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
+            time_pressed = 0;
+        }
+    }
+
+    if (released(Player::P1, Name::CYCLEDOWN)) {
+        time_pressed = 0;
+    }
+
     if (pressed(Player::P1, Name::BOOST)) {
         highscore_index[highscore_space] -= 1;
         if (highscore_index[highscore_space] == -1)
@@ -155,19 +169,31 @@ void update_game_over_screen() {
         highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
     }
 
+    if (down(Player::P1, Name::BOOST)) {
+        time_pressed += delta;
+        if (time_pressed >= 0.2) {
+            highscore_index[highscore_space] -= 1;
+            if (highscore_index[highscore_space] == -1)
+                highscore_index[highscore_space] = VALID_CHARS.size() - 1;
+            highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
+            time_pressed = 0;
+        }
+    }
+
+    if (released(Player::P1, Name::BOOST)) {
+        time_pressed = 0;
+    }
+
     if (pressed(Player::P1, Name::UP)) {
-        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_space = (highscore_space + 1) % 3;
     }
 
     if (pressed(Player::P1, Name::DOWN)) {
-        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         if (highscore_space == 0) highscore_space = 2;
         else highscore_space--;
     }
 
     if (pressed(Player::P1, Name::CONFIRM)) {
-        Mixer::play_sound(ASSET_SELECT, 1.5, 0.5);
         highscore_space = 0;
         write_highscores(highscores, highscore_name, score);
         highscores = read_highscores();
@@ -205,7 +231,6 @@ void update_game(f32 delta) {
                 truck.super_boost();
                 enemy->hp = 0;
             } else {
-                explode_truck();
                 game_over = true;
             }
         }
@@ -222,6 +247,10 @@ void update_game(f32 delta) {
                 emit_hit_particles(bullet.body.position);
             }
         }
+    }
+
+    if (down(Player::P1, Name::BOOST)) {
+        Renderer::global_camera.shake = random_unit_vec2() * 0.001;
     }
 
     camera_follow(truck.body.position, delta);
@@ -241,11 +270,9 @@ void update(f32 delta) {
     if (title_screen)
         update_title_screen();
     else if (game_over)
-        update_game_over_screen();
-    else {
-        stars.clear();
+        update_game_over_screen(delta);
+    else
         update_game(delta);
-    }
 }
 
 // Main draw
@@ -269,8 +296,6 @@ void draw() {
     drawStars();
 
     Vec2 cam = -Renderer::global_camera.position;
-    
-    stars.position = V2(cam.x, WORLD_BOTTOM_EDGE);
     if (game_over) {
         Vec2 dim;
         f32 size = 1.6;
