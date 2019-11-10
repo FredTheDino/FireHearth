@@ -5,8 +5,8 @@
 #include <algorithm>
 
 const u32 NO_ASSET = 1024;
-const f32 WORLD_LEFT_EDGE  = -120;
-const f32 WORLD_RIGHT_EDGE =  120;
+const f32 WORLD_LEFT_EDGE  = -100;
+const f32 WORLD_RIGHT_EDGE =  100;
 const f32 WORLD_TOP_EDGE = 34;
 const f32 WORLD_BOTTOM_EDGE = -34;
 const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
@@ -44,8 +44,8 @@ Truck truck;
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
 
-float CAMERA_MAX = 20;
-float CAMERA_MIN = -20;
+float CAMERA_MAX = WORLD_RIGHT_EDGE - 60;
+float CAMERA_MIN = WORLD_LEFT_EDGE  + 60;
 
 const std::string VALID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 

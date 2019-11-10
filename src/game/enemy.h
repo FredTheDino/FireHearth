@@ -185,6 +185,8 @@ struct Spawner {
             threat = 1;
         } else if (time < 80) {
             threat = 2;
+        } else if (time < 120) {
+            threat = 3;
         }
 
         // Spawn according to threat level
@@ -215,6 +217,21 @@ struct Spawner {
                     last_spawn[BANANA_INDEX] = time;
                 }
                 if (time - last_spawn[BIGBOI_INDEX] > 25) {
+                    spawn_bigboi();
+                    last_spawn[BIGBOI_INDEX] = time;
+                }
+                break;
+            case 3:
+                LOG("%f", threat3_coeff(time));
+                if (time - last_spawn[TRASHBAG_INDEX] > 2 * threat3_coeff(time)) {
+                    spawn_trashbag();
+                    last_spawn[TRASHBAG_INDEX] = time;
+                }
+                if (time - last_spawn[BANANA_INDEX] > 8 * threat3_coeff(time)) {
+                    spawn_banana();
+                    last_spawn[BANANA_INDEX] = time;
+                }
+                if (time - last_spawn[BIGBOI_INDEX] > 25 * threat3_coeff(time)) {
                     spawn_bigboi();
                     last_spawn[BIGBOI_INDEX] = time;
                 }
@@ -251,6 +268,10 @@ struct Spawner {
         last_spawn[0] = -1;
         last_spawn[1] = -1;
         last_spawn[2] = -1;
+    }
+
+    f32 threat3_coeff(f32 time) {
+        return MAX(0.5, pow(0.66, (time - 120) / 40));
     }
 
     std::vector<Enemy*>* enemies;
