@@ -56,7 +56,6 @@ void Truck::boost(f32 delta) {
     // boost_particles.spawn();
     body.velocity += forward * TRUCK_BOOST_STRENGTH * delta;
 
-    LOG("boost: %f", boost_timer);
     if (boost_timer > 0.0 && !max_out) {
         if (random_real() < 0.5)
             super_particles.spawn();
@@ -102,7 +101,7 @@ void Truck::update(f32 delta) {
         body.velocity += normalize(body.velocity) * TRUCK_BOOST_INITIAL;
     }
 
-    if (down(Player::P1, Name::BOOST))
+    if (down(Player::P1, Name::BOOST)) {
         boost(delta);  
         boost_timer -= delta;
     } else {

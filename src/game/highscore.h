@@ -20,7 +20,7 @@ std::vector<HighScore> read_highscores() {
     int score;
     while (input >> name) {
         input >> score;
-        scores.push_back({ name, score });
+        scores.push_back({ name, (u32) score });
     }
 
 
@@ -28,7 +28,7 @@ std::vector<HighScore> read_highscores() {
 }
 
 void write_highscores(std::vector<HighScore>& scores, std::string name, int score) {
-    HighScore new_score = { name, score };
+    HighScore new_score = { name, (u32) score };
     scores.insert(std::upper_bound(scores.begin(), scores.end(), new_score), new_score);
 
     std::ofstream output("highscores.txt", std::ofstream::out);
