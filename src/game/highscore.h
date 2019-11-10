@@ -3,7 +3,7 @@ struct HighScore {
     u32 score;
 
     bool operator< (const HighScore &other) const {
-        return score < other.score;
+        return score > other.score;
     }
 };
 

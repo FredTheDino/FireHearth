@@ -5,8 +5,8 @@
 #include <algorithm>
 
 const u32 NO_ASSET = 1024;
-const f32 WORLD_LEFT_EDGE  = -120;
-const f32 WORLD_RIGHT_EDGE =  120;
+const f32 WORLD_LEFT_EDGE  = -100;
+const f32 WORLD_RIGHT_EDGE =  100;
 const f32 WORLD_TOP_EDGE = 34;
 const f32 WORLD_BOTTOM_EDGE = -34;
 const f32 PIXEL_TO_WORLD = 1.0 / 3.0;
@@ -44,8 +44,8 @@ Truck truck;
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
 
-float CAMERA_MAX = 20;
-float CAMERA_MIN = -20;
+float CAMERA_MAX = WORLD_RIGHT_EDGE - 60;
+float CAMERA_MIN = WORLD_LEFT_EDGE  + 60;
 
 const std::string VALID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -136,7 +136,7 @@ void update_game_over_screen() {
         highscore_index = highscore_index % VALID_CHARS.size();
         highscore_name[highscore_space] = VALID_CHARS[highscore_index];
     }
-    
+
     if (pressed(Player::P1, Name::DOWN)) {
         highscore_index -= 1;
         if (highscore_index == -1)
@@ -218,7 +218,7 @@ void update(f32 delta) {
     Renderer::global_camera.shake = V2(0, 0);
     updateClouds(delta);
 
-	if (title_screen)
+    if (title_screen)
         update_title_screen();
     else if (game_over)
         update_game_over_screen();
@@ -290,7 +290,7 @@ void draw() {
         scale = 0.5;
         dim = messure_text("OF THE", scale);
         draw_text("OF THE", cam - V2(dim.x / 2, 0.0), scale, 0.02);
-        
+
         scale = 1.0;
         dim = messure_text("TRUCK", scale);
         draw_text("TRUCK", cam - V2(dim.x / 2, 5.0), scale, 0.40, 2.5);
@@ -308,7 +308,7 @@ void draw() {
             draw_text(text, cam - V2(dim.x / 2 + sin(Logic::now() + i), 19 + 4 * i), scale, 0.5 / (i + 1));
 
         }
-    
+
     } else {
         truck.draw();
         draw_bullets();
@@ -316,7 +316,7 @@ void draw() {
 
         f32 scale = 1.0;
         f32 wavey_ness = MIN(pow(get_multiplier(), 0.75) / 5.0, 2);
-        char *score_text = Util::format("%10d %dX", get_score(), get_multiplier()); 
+        char *score_text = Util::format("%10d %dX", get_score(), get_multiplier());
         Vec2 dim = messure_text(score_text, scale);
         draw_text(score_text, cam + V2(60 - dim.x, +27), scale, wavey_ness, wavey_ness);
 
