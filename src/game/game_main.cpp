@@ -41,6 +41,8 @@ const float MAX_TRASH_LEVEL = -15;
 const float MIN_TRASH_LEVEL = -43;
 const float TRASH_VELOCITY = 0.01;
 
+const float SHOW_CONTROLS_FOR = 12.0;
+
 f32 currentTrashLevel = START_TRASH_LEVEL;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
@@ -74,6 +76,8 @@ void explode_truck() {
         truck.super_particles.spawn();
     }
 }
+
+f32 show_controls = 0.0;
 
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
@@ -120,7 +124,7 @@ void setup() {
     // Mute
     add(K(m), Player::P1, Name::MUTE);
 
-    music_id = play_music();
+    // music_id = play_music();
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
@@ -256,12 +260,14 @@ void update_game_over_screen(f32 delta) {
         dead = false;
         title_screen = true;
         initalize_enemies();
+
         truck.reset();
         currentTrashLevel = START_TRASH_LEVEL;
         goalTrashLevel = MIN_TRASH_LEVEL;
         groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
         // TODO(ed): Reset truck here.
+        show_controls = 0;
         first_pass = true;
         reset_score();
         bullets.clear();
@@ -270,6 +276,7 @@ void update_game_over_screen(f32 delta) {
 
 void update_game(f32 delta) {
     // Update game elements
+    show_controls += delta;
     truck.update(delta);
     update_bullets(delta);
     spawner.update(delta);
@@ -333,9 +340,9 @@ void update(f32 delta) {
     // Mute logic
     if (pressed(Player::P1, Name::MUTE)) {
         if (music_muted) {
-            music_id = play_music();
+            // music_id = play_music();
         } else {
-            stop_sound(music_id);
+            // stop_sound(music_id);
         }
         music_muted = !music_muted;
     }
@@ -430,6 +437,10 @@ void draw() {
         }
 
     } else {
+        if (show_controls < SHOW_CONTROLS_FOR)
+            Renderer::push_sprite(paralax(V2(0, -12.0), CASTLE_DISTANCE), V2(39, -16), 0,
+                    ASSET_PARTICLE_SPRITESHEEP, V2(0, 35), V2(39, 16));
+
         truck.draw();
         draw_bullets();
         draw_enemies();

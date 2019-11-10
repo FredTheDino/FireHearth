@@ -109,7 +109,7 @@ void Truck::update(f32 delta) {
     super_particles.position = body.position - forward * dimension.x * 0.5;
     boost_particles.position = body.position - forward * dimension.x * 0.5;
     smoke_particles.position = body.position - forward * dimension.x * 0.5;
-    body.velocity += V2(0, -delta * 5);
+    body.velocity += V2(0, -delta * TRUCK_GRAVITY);
 
     {
         f32 velocity_angle = -angle(forward);
@@ -171,7 +171,7 @@ void Truck::update(f32 delta) {
 
     body.velocity -= normal_dir * CLAMP(-5, 5, normal_slowdown) * velocity_squared;
     if (length_squared(body.velocity) > TRUCK_MAX_SPEED)
-        body.velocity *= pow(0.2, delta);
+        body.velocity *= pow(0.3, delta);
 
     if (down(Player::P1, Name::SHOOT) &&
         Logic::now() >= last_shot + TRUCK_SHOOT_DELAY) {
