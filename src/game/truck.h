@@ -10,6 +10,9 @@ const f32 TRUCK_ROTATION_SPEED = 8.0;
 const f32 TRUCK_VELOCITY_DAMPING = 0.4;
 const f32 TRUCK_VELOCITY_WEIGHT = 0.2;
 const f32 TRUCK_SHOOT_DELAY = 0.1;
+const f32 TRUCK_BOOST_MAX = 60.0;
+const f32 TRUCK_BOOST_TIME_MAX = 0.5;
+const f32 TRUCK_BOOST_TIME_MIN = 0.0;
 
 struct Bullet {
     Physics::Body body;
@@ -28,11 +31,14 @@ struct Bullet {
 
 struct Truck {
     Physics::Body body;
+    Renderer::ParticleSystem super_particles;
     Renderer::ParticleSystem boost_particles;
     Renderer::ParticleSystem smoke_particles;
     Vec2 dimension = V2(TRUCK_SPRITE.z, TRUCK_SPRITE.w) * PIXEL_TO_WORLD;
     Vec2 forward = V2(1, 0);
     f32 last_shot = 0;
+    f32 boost_timer = TRUCK_BOOST_TIME_MAX;
+    bool max_out = false;
 
     void boost(f32 delta);
 

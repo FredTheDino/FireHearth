@@ -55,19 +55,26 @@ void Truck::boost(f32 delta) {
     boost_particles.spawn();
     // boost_particles.spawn();
     body.velocity += forward * TRUCK_BOOST_STRENGTH * delta;
-    if (pressed(Player::P1, Name::BOOST)) {
-        body.velocity += forward * TRUCK_BOOST_STRENGTH * delta;
+
+    LOG("boost: %f", boost_timer);
+    if (boost_timer > 0.0 && !max_out) {
+        if (random_real() < 0.5)
+            super_particles.spawn();
+        body.velocity += normalize(body.velocity) * LERP(TRUCK_BOOST_MAX, boost_timer, 0.0) * delta;
     }
 }
 
 void Truck::update(f32 delta) {
     Physics::integrate(&body, delta);
+    super_particles.position = body.position - forward * dimension.x * 0.5;
     boost_particles.position = body.position - forward * dimension.x * 0.5;
     smoke_particles.position = body.position - forward * dimension.x * 0.5;
     body.velocity += V2(0, -delta * 5);
 
     {
         f32 velocity_angle = -angle(forward);
+        super_particles.velocity_dir = {velocity_angle - 3.0f,
+            velocity_angle + 3.0f};
         boost_particles.velocity_dir = {velocity_angle - 0.5f,
             velocity_angle + 0.5f};
         smoke_particles.velocity_dir = {velocity_angle - 1.0f,
@@ -75,17 +82,24 @@ void Truck::update(f32 delta) {
     }
     smoke_particles.spawn();
 
-    if (body.position.y <= groundLevel){
-	game_over = true;
+    if (body.position.y <= groundLevel) {
+        game_over = true;
     }
 
-    
-
-    if (pressed(Player::P1, Name::BOOST)) {
-        body.velocity += normalize(body.velocity) * TRUCK_BOOST_INITIAL;
-    }
-    if (down(Player::P1, Name::BOOST))
+    if (down(Player::P1, Name::BOOST)) {
         boost(delta);  
+        boost_timer -= delta;
+    } else {
+        boost_timer += delta * 0.4;
+    }
+
+    if (boost_timer < 0.0)
+        max_out = true;
+    if (max_out && boost_timer > TRUCK_BOOST_TIME_MAX)
+        max_out = false;
+
+    boost_timer = CLAMP(TRUCK_BOOST_TIME_MIN, TRUCK_BOOST_TIME_MAX, boost_timer);
+
     if (down(Player::P1, Name::UP))
         forward = rotate(forward, TRUCK_ROTATION_SPEED * delta);
     if (down(Player::P1, Name::DOWN))
@@ -108,6 +122,7 @@ void Truck::update(f32 delta) {
 
     }
 
+    super_particles.update(delta);
     smoke_particles.update(delta);
     boost_particles.update(delta);
 }
@@ -115,6 +130,7 @@ void Truck::update(f32 delta) {
 void Truck::draw() {
     smoke_particles.draw();
     boost_particles.draw();
+    super_particles.draw();
     Renderer::push_sprite(body.position, dimension, -angle(-forward),
             ASSET_PARTICLE_SPRITESHEEP,
             V2(TRUCK_SPRITE.x, TRUCK_SPRITE.y),
@@ -146,8 +162,20 @@ Truck create_truck() {
     smoke_particles.spawn_size = {0.6, 1.0};
     smoke_particles.die_size = {0.0, 0.0};
 
+    auto super_particles = Renderer::create_particle_system(250, V2(0, 0));
+    super_particles.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 22, 1, 1, 1);
+    super_particles.relative = false;
+    super_particles.one_color = true;
+    super_particles.one_alpha = true;
+    super_particles.velocity = {-2.0, -3.0};
+    super_particles.alive_time = {5, 6};
+    super_particles.damping = {0.8, 0.9};
+    super_particles.rotation = {0, 0};
+    super_particles.spawn_size = {0.6, 1.0};
+    super_particles.die_size = {0.0, 0.0};
+
     Truck truck = { Physics::create_body(square, 1.0, 0xFF, 0.0, 0.2),
-                    boost_particles, smoke_particles};
+                    super_particles, boost_particles, smoke_particles};
     return truck;
 }
 
