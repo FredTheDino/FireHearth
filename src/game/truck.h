@@ -11,6 +11,8 @@ const f32 TRUCK_VELOCITY_DAMPING = 0.4;
 const f32 TRUCK_VELOCITY_WEIGHT = 0.2;
 const f32 TRUCK_SHOOT_DELAY = 0.1;
 
+const f32 WIND_FORCE = 5;
+
 struct Bullet {
     Physics::Body body;
     f32 spawn_time;
