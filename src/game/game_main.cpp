@@ -16,8 +16,24 @@ namespace Game {
 using namespace Input;
 Physics::ShapeID square;
 bool game_over = false;
+bool dead = false;
+bool music_muted = false;
+Mixer::AudioID music_id;
+
+void explode_truck();
 Vec2 get_truck_pos();
 Vec2 paralax(Vec2 position, f32 distance);
+
+void set_game_over() {
+    game_over = true;
+}
+
+void end_game() {
+    if (dead) return;
+    Logic::add_callback(Logic::At::PRE_UPDATE, set_game_over, Logic::now() + 3);
+    explode_truck();
+    dead = true;
+}
 
 const float START_TRASH_LEVEL = -50;
 const float COLLISION_TRASH_LEVEL = 20;
@@ -28,10 +44,6 @@ const float TRASH_VELOCITY = 0.01;
 f32 currentTrashLevel = START_TRASH_LEVEL;
 f32 goalTrashLevel = MIN_TRASH_LEVEL;
 f32 groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
-
-void explode_truck() {
-    Mixer::play_sound(ASSET_DEATH, 1.0, 0.7);
-}
 
 #include "text.h"
 #include "highscore.h"
@@ -45,6 +57,23 @@ void explode_truck() {
 #include "star_particles.h"
 
 Truck truck;
+
+void explode_truck() {
+    Mixer::play_sound(ASSET_DEATH, 1.0, 0.7);
+    truck.smoke_particles.position = truck.body.position;
+    truck.smoke_particles.velocity_dir = {0, 2 * PI};
+    truck.smoke_particles.velocity = {1, 7};
+    for (int i = 0; i < 40; i++) {
+        truck.smoke_particles.spawn();
+    }
+
+    truck.super_particles.position = truck.body.position;
+    truck.super_particles.velocity_dir = {0, 2 * PI};
+    truck.super_particles.velocity = {1, 14};
+    for (int i = 0; i < 60; i++) {
+        truck.super_particles.spawn();
+    }
+}
 
 float CASTLE_DISTANCE = 5;
 float TRASH_MOUNTAIN_DISTANCE = -0.5;
@@ -60,6 +89,11 @@ std::vector<HighScore> highscores;
 
 Vec2 get_truck_pos() {
     return truck.body.position;
+}
+
+Mixer::AudioID play_music() {
+    return Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0
+              ,Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, true);
 }
 
 void setup() {
@@ -80,10 +114,13 @@ void setup() {
     // Shoot!
     add(K(SPACE), Player::P1, Name::SHOOT);
 
-    //Confirm
+    // Confirm
     add(K(RETURN), Player::P1, Name::CONFIRM);
 
-    //Mixer::play_sound(ASSET_BEEPBOX_SONG, 1.0, 5.0,0, 0, true);
+    // Mute
+    add(K(m), Player::P1, Name::MUTE);
+
+    music_id = play_music();
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
@@ -211,6 +248,7 @@ void update_game_over_screen(f32 delta) {
         highscores = read_highscores();
         highscore_name = "AAA";
         game_over = false;
+        dead = false;
         title_screen = true;
         initalize_enemies();
         truck.reset();
@@ -243,7 +281,7 @@ void update_game(f32 delta) {
                 truck.super_boost();
                 enemy->hp = 0;
             } else {
-                game_over = true;
+                end_game();
             }
         }
     }
@@ -268,7 +306,7 @@ void update_game(f32 delta) {
     camera_follow(truck.body.position, delta);
 
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
-        game_over = true;
+        end_game();
     } else if (currentTrashLevel < goalTrashLevel){
         currentTrashLevel += TRASH_VELOCITY;
     }
@@ -285,6 +323,16 @@ void update(f32 delta) {
         update_game_over_screen(delta);
     else
         update_game(delta);
+
+    // Mute logic
+    if (pressed(Player::P1, Name::MUTE)) {
+        if (music_muted) {
+            music_id = play_music();
+        } else {
+            stop_sound(music_id);
+        }
+        music_muted = !music_muted;
+    }
 }
 
 // Main draw
