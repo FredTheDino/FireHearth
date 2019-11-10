@@ -175,10 +175,15 @@ f32 update_speed = 0;
 int highscore_index[] = { 10, 10, 10 };
 u32 highscore_space = 0;
 std::string highscore_name = "AAA";
+bool first_pass = true;
 void update_game_over_screen(f32 delta) {
     stars.update(Logic::delta());
     if (highscores.empty() || score > highscores[0].score) {
         spawnStar();
+        if (first_pass) {
+            first_pass = false;
+            Mixer::play_sound(ASSET_NEW_HIGHSCORE, 1.0, 0.8);
+        }
     }
     if (pressed(Player::P1, Name::CYCLEDOWN)) {
         Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
@@ -257,6 +262,7 @@ void update_game_over_screen(f32 delta) {
         groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
         // TODO(ed): Reset truck here.
+        first_pass = true;
         reset_score();
         bullets.clear();
     }
