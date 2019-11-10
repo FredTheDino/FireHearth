@@ -170,24 +170,64 @@ void update_title_screen() {
         title_screen = false;
 }
 
+f32 time_pressed = 0;
+f32 update_speed = 0;
 int highscore_index[] = { 10, 10, 10 };
 u32 highscore_space = 0;
 std::string highscore_name = "AAA";
-void update_game_over_screen() {
+void update_game_over_screen(f32 delta) {
+    stars.update(Logic::delta());
     if (highscores.empty() || score > highscores[0].score) {
         spawnStar();
-        //Write highscore
     }
     if (pressed(Player::P1, Name::CYCLEDOWN)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_index[highscore_space] += 1;
         highscore_index[highscore_space] %= VALID_CHARS.size();
         highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
     }
+    
+    if (down(Player::P1, Name::CYCLEDOWN)) {
+        time_pressed += delta * update_speed;
+        update_speed += delta;
+        if (time_pressed >= 0.2) {
+            Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
+            highscore_index[highscore_space] += 1;
+            highscore_index[highscore_space] %= VALID_CHARS.size();
+            highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
+            time_pressed = 0;
+        }
+    }
+
+    if (released(Player::P1, Name::CYCLEDOWN)) {
+        time_pressed = 0;
+        update_speed = 1;
+    }
+
     if (pressed(Player::P1, Name::BOOST)) {
+        Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
         highscore_index[highscore_space] -= 1;
         if (highscore_index[highscore_space] == -1)
             highscore_index[highscore_space] = VALID_CHARS.size() - 1;
         highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
+    }
+
+    if (down(Player::P1, Name::BOOST)) {
+        time_pressed += delta * update_speed;
+        update_speed += delta;
+        if (time_pressed >= 0.2) {
+            Mixer::play_sound(ASSET_SELECT, 1.0, 0.5);
+            highscore_index[highscore_space] -= 1;
+            if (highscore_index[highscore_space] == -1)
+                highscore_index[highscore_space] = VALID_CHARS.size() - 1;
+            highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
+            time_pressed = 0;
+        }
+    }
+
+    if (released(Player::P1, Name::BOOST)) {
+        time_pressed = 0;
+        update_speed = 1;
     }
 
     if (pressed(Player::P1, Name::UP)) {
@@ -202,7 +242,7 @@ void update_game_over_screen() {
     }
 
     if (pressed(Player::P1, Name::CONFIRM)) {
-        Mixer::play_sound(ASSET_SELECT, 1.5, 0.5);
+        Mixer::play_sound(ASSET_SELECT, 2.0, 0.5);
         highscore_space = 0;
         write_highscores(highscores, highscore_name, score);
         highscores = read_highscores();
@@ -259,6 +299,10 @@ void update_game(f32 delta) {
         }
     }
 
+    if (down(Player::P1, Name::BOOST)) {
+        Renderer::global_camera.shake = random_unit_vec2() * 0.001;
+    }
+
     camera_follow(truck.body.position, delta);
 
     if (currentTrashLevel >= MAX_TRASH_LEVEL) {
@@ -276,11 +320,9 @@ void update(f32 delta) {
     if (title_screen)
         update_title_screen();
     else if (game_over)
-        update_game_over_screen();
+        update_game_over_screen(delta);
     else
         update_game(delta);
-
-    updateStars(delta);
 
     // Mute logic
     if (pressed(Player::P1, Name::MUTE)) {
