@@ -39,7 +39,7 @@ void clear_bullets() {
 }
 
 void create_bullet(Vec2 position, Vec2 forward) {
-    f32 bulletSpread = random_real(-0.15, 0.15);
+    f32 bulletSpread = random_real(-0.11, 0.11);
     forward = rotate(forward, bulletSpread);
     Bullet bullet;
     bullet.body = Physics::create_body(square, 1.0, 0xFF, 0.0, 0.0);
