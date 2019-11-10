@@ -125,6 +125,8 @@ void setup() {
     add(K(m), Player::P1, Name::MUTE);
 
     // music_id = play_music();
+    // Fullscreen
+    add(K(f), Player::P1, Name::FULLSCREEN);
 
     Renderer::set_window_size(1200, 670);
     Renderer::set_window_position(200, 100);
@@ -195,7 +197,7 @@ void update_game_over_screen(f32 delta) {
         highscore_index[highscore_space] %= VALID_CHARS.size();
         highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
     }
-    
+
     if (down(Player::P1, Name::CYCLEDOWN)) {
         time_pressed += delta * update_speed;
         update_speed += delta;
@@ -345,6 +347,11 @@ void update(f32 delta) {
             // stop_sound(music_id);
         }
         music_muted = !music_muted;
+    }
+
+    // Fullscreen logic
+    if (pressed(Player::P1, Name::FULLSCREEN)) {
+        Renderer::toggle_fullscreen();
     }
 }
 
