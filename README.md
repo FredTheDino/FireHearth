@@ -7,6 +7,10 @@ make run    # Compiles and runs the project.
 This assumes you have a C++ compiler installed, and
 are running Linux, other OS's have not been tested.
 
+## Screenshots
+![](misc/flight_screenshot.png)
+![](misc/title_screen.png)
+
 ## What is this?
 It's a game jam game! It's fun, it's color full and
 completely packed with particles!
