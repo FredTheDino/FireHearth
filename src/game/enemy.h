@@ -293,7 +293,7 @@ struct Spawner {
     f32 last_spawn[3] = { -1, -1, -1 };
 };
 
-Renderer::ParticleSystem hit_particles;
+Renderer::ParticleSystem hit_particles = {};
 std::vector<Enemy*> enemies;
 Spawner spawner(&enemies);
 
@@ -305,6 +305,8 @@ void initalize_enemies() {
     enemies.clear();
     enemies.reserve(64);
 
+    if (hit_particles.particles)
+        Renderer::destroy_particle_system(&hit_particles);
     hit_particles = Renderer::create_particle_system(500, V2(0, 0));
     hit_particles.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 19, 1, 1, 1);
     hit_particles.add_sprite(ASSET_PARTICLE_SPRITESHEEP, 22, 1, 1, 1);
