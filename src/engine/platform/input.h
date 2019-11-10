@@ -82,6 +82,7 @@ enum class Name {
     BOOST,
     RESTART,
     CONFIRM,
+    CYCLEDOWN,
 
     QUIT,
 

@@ -63,13 +63,13 @@ void setup() {
     // Bind wasd
     add(K(w), Player::P1, Name::BOOST);
     add(K(d), Player::P1, Name::UP);
-    add(K(s), Player::P1, Name::DOWN); // Add brake?
+    add(K(s), Player::P1, Name::CYCLEDOWN);
     add(K(a), Player::P1, Name::DOWN);
 
     // Bind arrow keys
     add(K(UP), Player::P1, Name::BOOST);
     add(K(RIGHT), Player::P1, Name::UP);
-    add(K(DOWN), Player::P1, Name::DOWN); //Add brake?
+    add(K(DOWN), Player::P1, Name::CYCLEDOWN);
     add(K(LEFT), Player::P1, Name::DOWN);
 
     // Shoot!
@@ -127,43 +127,48 @@ void update_title_screen() {
         title_screen = false;
 }
 
-int highscore_index = 10;
+int highscore_index[] = { 10, 10, 10 };
 u32 highscore_space = 0;
 std::string highscore_name = "AAA";
 void update_game_over_screen() {
+    if (pressed(Player::P1, Name::CYCLEDOWN)) {
+        highscore_index[highscore_space] += 1;
+        highscore_index[highscore_space] %= VALID_CHARS.size();
+        highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
+    }
+
     if (pressed(Player::P1, Name::BOOST)) {
-        highscore_index += 1;
-        highscore_index = highscore_index % VALID_CHARS.size();
-        highscore_name[highscore_space] = VALID_CHARS[highscore_index];
+        highscore_index[highscore_space] -= 1;
+        if (highscore_index[highscore_space] == -1)
+            highscore_index[highscore_space] = VALID_CHARS.size() - 1;
+        highscore_name[highscore_space] = VALID_CHARS[highscore_index[highscore_space]];
+    }
+
+    if (pressed(Player::P1, Name::UP)) {
+        highscore_space = (highscore_space + 1) % 3;
     }
 
     if (pressed(Player::P1, Name::DOWN)) {
-        highscore_index -= 1;
-        if (highscore_index == -1)
-            highscore_index = VALID_CHARS.size() - 1;
-        highscore_name[highscore_space] = VALID_CHARS[highscore_index];
+        if (highscore_space == 0) highscore_space = 2;
+        else highscore_space--;
     }
 
     if (pressed(Player::P1, Name::CONFIRM)) {
-        highscore_index = 10;
-        highscore_space++;
-        if (highscore_space == highscore_name.size()) {
-            highscore_space = 0;
-            write_highscores(highscores, highscore_name, score);
-            highscores = read_highscores();
-            highscore_name = "AAA";
-            game_over = false;
-            title_screen = true;
-            initalize_enemies();
-            truck.reset();
-            currentTrashLevel = START_TRASH_LEVEL;
-            goalTrashLevel = MIN_TRASH_LEVEL;
-            groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
+        highscore_space = 0;
+        write_highscores(highscores, highscore_name, score);
+        highscores = read_highscores();
+        highscore_name = "AAA";
+        game_over = false;
+        title_screen = true;
+        initalize_enemies();
+        truck.reset();
+        currentTrashLevel = START_TRASH_LEVEL;
+        goalTrashLevel = MIN_TRASH_LEVEL;
+        groundLevel = currentTrashLevel + COLLISION_TRASH_LEVEL;
 
-            // TODO(ed): Reset truck here.
-            reset_score();
-            bullets.clear();
-        }
+        // TODO(ed): Reset truck here.
+        reset_score();
+        bullets.clear();
     }
 }
 
@@ -268,7 +273,7 @@ void draw() {
                 size, sin(Logic::now() / 10) * 0.5);
 
         char output[] = " \0";
-        f32 spacing = 12 * PIXEL_TO_WORLD;
+        f32 spacing = 16 * PIXEL_TO_WORLD;
         f32 left = -spacing * 1.5;
         size = 1.0;
         for (u32 i = 0; i < highscore_name.size(); i++) {
@@ -280,10 +285,8 @@ void draw() {
                 draw_text(output, position + V2(0, -4.0), size);
             }
 
-            if (MOD(Logic::now(), 0.8) > 0.4 || i != highscore_space) {
-                output[0] = highscore_name[i];
-                draw_text(output, position, size);
-            }
+            output[0] = highscore_name[i];
+            draw_text(output, position, size);
         }
 
 
