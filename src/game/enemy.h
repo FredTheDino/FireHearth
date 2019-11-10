@@ -16,18 +16,16 @@ struct Enemy : public Entity {
         Entity(pos, dim, ASSET_TEST, rotation),
         hp(hp),
         time(0),
-        animation_delay(1) {}
+        animation_delay(1),
+        boost_killable(true) {}
 
     virtual ~Enemy() {}
-
-    bool boost_killable() {
-        return true;
-    }
 
     u32 hp;
     f32 time;
     f32 animation_delay;
     std::vector<AssetID> images;
+    bool boost_killable;
 
     void animate(f32 time) {
         image = images[(u32)(time / animation_delay) % images.size()];
@@ -161,6 +159,7 @@ struct BigBoiBullet : public Enemy {
         acceleration(V2(0, BIGBOI_BULLET_ACCELERATION)),
         orig_y(pos.y) {
             image = ASSET_BIGBOI_BULLET;
+            boost_killable = false;
     }
 
     void update(f32 delta) override {
@@ -321,13 +320,15 @@ void emit_hit_particles(Vec2 position) {
 
 void emit_dead_particles(Vec2 position) {
     hit_particles.position = position;
-    auto old = hit_particles.spawn_size;
+    auto old_size = hit_particles.spawn_size;
+    auto old_vel = hit_particles.velocity;
     hit_particles.spawn_size = {2.0, 2.5};
+    hit_particles.velocity = {-20.0, 20.0};
     u32 count = random_int() % 10 + 15;
-    for (u32 i = 0; i < count; i++) {
+    for (u32 i = 0; i < count; i++)
         hit_particles.spawn();
-    }
-    hit_particles.spawn_size = old;
+    hit_particles.velocity = old_vel;
+    hit_particles.spawn_size = old_size;
 }
 
 void emit_boost_to_kill_particles(Vec2 position) {

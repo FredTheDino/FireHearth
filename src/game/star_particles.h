@@ -1,7 +1,7 @@
 Renderer::ParticleSystem stars;
 
 void createStarSystem() {
-    stars = Renderer::create_particle_system(2000, V2(0, 0));
+    stars = Renderer::create_particle_system(2000, V2(0, WORLD_BOTTOM_EDGE));
     stars.add_sprite(ASSET_STAR_1, 0, 0 , 12, 12);
     stars.add_sprite(ASSET_STAR_2, 0, 0 , 12, 12);
     stars.add_sprite(ASSET_STAR_3, 0, 0 , 12, 12);

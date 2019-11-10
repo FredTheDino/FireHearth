@@ -236,7 +236,7 @@ void update_game(f32 delta) {
     for (Enemy* enemy : enemies) {
         Physics::Body enemy_body = enemy->get_body();
         if (Physics::check_overlap(&enemy_body, &truck.body)) {
-            if (truck.boost_to_kill && enemy->boost_killable()) {
+            if (truck.boost_to_kill && enemy->boost_killable) {
                 // TODO(ed): More hp requires more speed!
                 score_boost_kill_enemy();
                 emit_boost_to_kill_particles(enemy->pos);
@@ -305,12 +305,13 @@ void draw() {
         V2(-60, currentTrashLevel),
         V2(120, -37), 0, ASSET_TRASH_MOUNTAIN, V2(0, 0), V2(120, 37));
 
-    drawStars();
-
     Vec2 cam = -Renderer::global_camera.position;
+    stars.position.x = cam.x;
     if (game_over) {
         Vec2 dim;
         f32 size = 1.6;
+
+        drawStars();
 
         if (highscores.empty() || score > highscores[0].score) {
             dim = messure_text(" NEW HIGHSCORE", size);
@@ -344,8 +345,6 @@ void draw() {
             output[0] = highscore_name[i];
             draw_text(output, position, size);
         }
-
-
     } else if (title_screen) {
         Vec2 dim;
         f32 scale;
@@ -362,7 +361,7 @@ void draw() {
         dim = messure_text("TRUCK", scale);
         draw_text("TRUCK", cam - V2(dim.x / 2, 5.0), scale, 0.40, 2.5);
 
-        if (MOD(Logic::now(), 2.0) > 1.0) {
+        if (MOD(Logic::now(), 1.3) > 0.5) {
             scale = 0.5;
             dim = messure_text("PRESS ENTER TO START", scale);
             draw_text("PRESS ENTER TO START", cam - V2(dim.x / 2, 13.0), scale, 0.02);
