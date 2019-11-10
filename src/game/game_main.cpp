@@ -179,13 +179,14 @@ void update_game(f32 delta) {
     for (Enemy* enemy : enemies) {
         Physics::Body enemy_body = enemy->get_body();
         if (Physics::check_overlap(&enemy_body, &truck.body)) {
-            if (truck.boost_to_kill && !enemy->boost_killable()) {
-                game_over = true;
-            } else {
+            if (truck.boost_to_kill && enemy->boost_killable()) {
                 // TODO(ed): More hp requires more speed!
                 score_boost_kill_enemy();
                 emit_boost_to_kill_particles(enemy->pos);
+                truck.super_boost();
                 enemy->hp = 0;
+            } else {
+                game_over = true;
             }
         }
     }
@@ -200,12 +201,7 @@ void update_game(f32 delta) {
                 score_hit_enemy();
                 emit_hit_particles(bullet.body.position);
             }
-
-            if (Physics::check_overlap(&enemy_body, &truck.body)){
-                game_over = true;
-            }
         }
-
     }
 
     if (down(Player::P1, Name::BOOST)) {

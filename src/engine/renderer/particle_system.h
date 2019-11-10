@@ -117,6 +117,8 @@ struct ParticleSystem {
 
     // Adds a sprite as a potential particle.
     void add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
+
+    void clear();
 };
 
 ///*

@@ -128,7 +128,7 @@ void Truck::update(f32 delta) {
     f32 normal_speed  = dot(body.velocity, normal_dir);
     f32 normal_slowdown = normal_speed * pow(TRUCK_VELOCITY_DAMPING, delta);
     f32 velocity_squared = CLAMP(0.0, 1.0, length_squared(body.velocity) / TRUCK_FLIGHT_CONSTANT);
-    boost_to_kill = velocity_squared > 0.50 && down(Player::P1, Name::BOOST);
+    boost_to_kill = (velocity_squared > 0.10) && down(Player::P1, Name::BOOST);
 
     body.velocity -= normal_dir * CLAMP(-5, 5, normal_slowdown) * velocity_squared;
     if (length_squared(body.velocity) > TRUCK_MAX_SPEED)
@@ -158,6 +158,11 @@ void Truck::draw() {
     // Physics::debug_draw_body(&body);
 }
 
+void Truck::super_boost() {
+    boost_timer = TRUCK_BOOST_TIME_MAX;
+    max_out = false;
+}
+
 void Truck::reset() {
     body.position = V2(0, 0);
     body.velocity = V2(1, 0);
@@ -165,6 +170,10 @@ void Truck::reset() {
     last_shot = 0;
     boost_timer = TRUCK_BOOST_TIME_MAX;
     max_out = false;
+
+    boost_particles.clear();
+    smoke_particles.clear();
+    super_particles.clear();
 }
 
 Truck create_truck() {
