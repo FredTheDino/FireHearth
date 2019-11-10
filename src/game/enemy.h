@@ -20,6 +20,10 @@ struct Enemy : public Entity {
 
     virtual ~Enemy() {}
 
+    virtual bool boost_killable() {
+        return true;
+    }
+
     u32 hp;
     f32 time;
     f32 animation_delay;
@@ -140,6 +144,10 @@ struct BigBoi : public Enemy {
             animation_delay = 0.25;
             images.push_back(ASSET_BIGBOI_LEFT);
             images.push_back(ASSET_BIGBOI_RIGHT);
+    }
+
+    virtual bool boost_killable() {
+        return false;
     }
 
     void update(f32 delta) override;
@@ -323,6 +331,17 @@ void emit_dead_particles(Vec2 position) {
         hit_particles.spawn();
     }
     hit_particles.spawn_size = old;
+}
+
+void emit_boost_to_kill_particles(Vec2 position) {
+    hit_particles.position = position;
+    auto old = hit_particles.velocity;
+    hit_particles.velocity = {5.0, 10.0};
+    u32 count = random_int() % 10 + 15;
+    for (u32 i = 0; i < count; i++) {
+        hit_particles.spawn();
+    }
+    hit_particles.velocity = old;
 }
 
 void update_enemies(f32 delta) {

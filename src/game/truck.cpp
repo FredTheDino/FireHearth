@@ -127,7 +127,9 @@ void Truck::update(f32 delta) {
     Vec2 normal_dir = rotate_ccw(forward);
     f32 normal_speed  = dot(body.velocity, normal_dir);
     f32 normal_slowdown = normal_speed * pow(TRUCK_VELOCITY_DAMPING, delta);
-    f32 velocity_squared = CLAMP(0.0, 1.0, length_squared(body.velocity) / 75.0);
+    f32 velocity_squared = CLAMP(0.0, 1.0, length_squared(body.velocity) / TRUCK_FLIGHT_CONSTANT);
+    boost_to_kill = velocity_squared > 0.50 && down(Player::P1, Name::BOOST);
+
     body.velocity -= normal_dir * CLAMP(-5, 5, normal_slowdown) * velocity_squared;
     if (length_squared(body.velocity) > TRUCK_MAX_SPEED)
         body.velocity *= pow(0.2, delta);

@@ -128,7 +128,7 @@ void update_title_screen() {
 }
 
 int highscore_index = 10;
-int highscore_space = 0;
+u32 highscore_space = 0;
 std::string highscore_name = "AAA";
 void update_game_over_screen() {
     if (pressed(Player::P1, Name::BOOST)) {
@@ -162,6 +162,7 @@ void update_game_over_screen() {
 
             // TODO(ed): Reset truck here.
             reset_score();
+            bullets.clear();
         }
     }
 }
@@ -177,8 +178,15 @@ void update_game(f32 delta) {
 
     for (Enemy* enemy : enemies) {
         Physics::Body enemy_body = enemy->get_body();
-        if (Physics::check_overlap(&enemy_body, &truck.body)){
-            game_over = true;
+        if (Physics::check_overlap(&enemy_body, &truck.body)) {
+            if (truck.boost_to_kill && !enemy->boost_killable()) {
+                game_over = true;
+            } else {
+                // TODO(ed): More hp requires more speed!
+                score_boost_kill_enemy();
+                emit_boost_to_kill_particles(enemy->pos);
+                enemy->hp = 0;
+            }
         }
     }
 
